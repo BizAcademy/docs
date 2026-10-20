@@ -1,0 +1,15 @@
+---
+title: "Idempotence"
+description: "Empêchez les doubles collectes, payouts, remboursements et émissions de carte."
+icon: "fingerprint"
+---
+
+Pour chaque écriture financière, envoyez une valeur stable et unique :
+
+```http
+Idempotency-Key: order-9481-collection
+```
+
+Réutilisez la même clé uniquement pour répéter exactement la même opération après une erreur réseau. Ne réutilisez jamais une clé pour une autre commande, un autre montant ou un autre destinataire.
+
+Les endpoints de carte exigent également `idempotency_key` dans leur payload lorsque ce champ est indiqué dans la référence OpenAPI.

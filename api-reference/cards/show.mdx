@@ -1,0 +1,70 @@
+---
+title: "Consulter une carte virtuelle"
+description: "Récupérez les données à jour et les transactions d'une carte."
+openapi: "openapi.json GET /cards/{virtualCard}"
+---
+
+<Warning>
+  Cette réponse peut contenir le PAN, le CVV et le code PIN. Ne la journalisez pas, ne la mettez pas en cache et ne la conservez pas dans votre base de données.
+</Warning>
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/cards/3b2c08e5-d8f2-4886-aad1-88977d455ff8 \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "card": {
+      "id": 636,
+      "balance": 2.0,
+      "currency": "USD",
+      "card_id": "38537f3f-3948-43af-fd9d-08df17dfe646",
+      "card_pan": "4288520000003108",
+      "masked_pan": "428852******3108",
+      "cvv": "813",
+      "expired_at": "09 / 2029",
+      "card_type": "Visa",
+      "pin": 218360,
+      "active": true,
+      "disabled": false,
+      "status": "PAID",
+      "category": "BUSINESS",
+      "grade": "PREMIUM",
+      "virtual_card_user": {
+        "reference": "BCP-CUS-67804B24CF5D3",
+        "first_name": "Amina",
+        "last_name": "Ndiaye",
+        "email": "amina@example.com"
+      }
+    },
+    "transactions": [
+      {
+        "id": 132923,
+        "date": "2026-09-21T17:41:25.000Z",
+        "merchant": {
+          "name": "Example Software",
+          "city": "",
+          "country": "USA"
+        },
+        "status": "successful",
+        "currency": "USD",
+        "amount": "20",
+        "type": "debit",
+        "transactionType": "purchase"
+      }
+    ]
+  },
+  "meta": {
+    "correlation_id": "f9c35025-8a46-4238-982c-f4076c65ca47"
+  }
+}
+```
+</ResponseExample>

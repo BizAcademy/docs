@@ -1,47 +1,74 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Démarrage rapide"
+description: "Obtenez un jeton, consultez les services et initiez votre première collecte."
+icon: "rocket"
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+## 1. Obtenir un jeton d'application
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+```bash
+curl --request POST \
+  --url https://account.bizconnectpay.com/api/v1/auth/application/token \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "client_id": "BCP_your_client_id",
+    "client_secret": "your_application_secret"
+  }'
+```
 
-## Prerequisites
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...",
+    "expires_in": 3600,
+    "token_type": "Bearer",
+    "environment": "SANDBOX",
+    "scope": "payments.read payments.write transactions.read"
+  },
+  "meta": {
+    "correlation_id": "3f551f5a-b809-4e0e-9dd7-52efaf784633"
+  }
+}
+```
 
-Before you begin, you must have:
+## 2. Lire les services disponibles
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+```bash
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/services \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Accept: application/json'
+```
 
-## Get started
+La réponse contient uniquement les combinaisons pays, devise, opération, méthode de paiement et fournisseur activées par l'administrateur.
 
-<Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+## 3. Initier une collecte
 
-    ```bash
-    npm install your-package
-    ```
-  </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+```bash
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payments \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: order-9481-collection' \
+  --data '{
+    "amount": "15000",
+    "currency": "XAF",
+    "country": "CM",
+    "operation": "COLLECTION",
+    "payment_method": "mtn_momo",
+    "payer": {
+      "phone_number": "+237671234567",
+      "lang": "fr"
+    },
+    "description": "Paiement commande 9481",
+    "metadata": {
+      "client_reference": "CMD-2026-9481"
+    }
+  }'
+```
 
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
-    ```bash
-    your-cli start
-    ```
-  </Step>
-</Steps>
-
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+<Info>
+  En `SANDBOX`, BizConnectPay conserve le même format de requête et de réponse que `LIVE`, mais ne transmet pas l'opération financière au fournisseur réel.
+</Info>

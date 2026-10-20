@@ -1,0 +1,45 @@
+---
+title: "Obtenir un jeton d'application"
+description: "Échangez les identifiants d'une application contre un jeton Bearer RS256."
+openapi: "openapi.json POST /auth/application/token"
+---
+
+Utilisez uniquement cet endpoint depuis votre serveur. Le jeton expire après `3600` secondes et doit être réutilisé jusqu'à son expiration.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://account.bizconnectpay.com/api/v1/auth/application/token \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "client_id": "BCP_live_8R4K2M7N",
+    "client_secret": "bcp_secret_replace_me"
+  }'
+```
+
+```json Payload
+{
+  "client_id": "BCP_live_8R4K2M7N",
+  "client_secret": "bcp_secret_replace_me"
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...",
+    "expires_in": 3600,
+    "token_type": "Bearer",
+    "environment": "LIVE",
+    "scope": "payments.read payments.write transactions.read"
+  },
+  "meta": {
+    "correlation_id": "3f551f5a-b809-4e0e-9dd7-52efaf784633"
+  }
+}
+```
+</ResponseExample>

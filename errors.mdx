@@ -1,0 +1,36 @@
+---
+title: "Erreurs et corrélation"
+description: "Interprétez les erreurs API et fournissez une référence exploitable au support."
+icon: "triangle-exclamation"
+---
+
+Toutes les réponses suivent la même enveloppe :
+
+```json
+{
+  "success": false,
+  "data": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "The given data was invalid.",
+      "details": {
+        "amount": ["The amount field is required."]
+      }
+    }
+  },
+  "meta": {
+    "correlation_id": "3f551f5a-b809-4e0e-9dd7-52efaf784633"
+  }
+}
+```
+
+| Statut | Signification |
+| --- | --- |
+| `401` | Jeton absent, expiré, invalide ou identifiant révoqué. |
+| `403` | Scope manquant, compte non actif ou KYB non approuvé. |
+| `404` | Ressource inexistante ou appartenant à un autre compte. |
+| `422` | Validation métier ou payload invalide. |
+| `429` | Limite de requêtes de l'application dépassée. |
+| `500` | Erreur interne inattendue. |
+
+Envoyez un UUID dans `X-Correlation-ID`. Si vous ne le fournissez pas, BizConnectPay en génère un et le renvoie dans `meta.correlation_id`.

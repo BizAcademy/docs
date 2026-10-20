@@ -1,0 +1,48 @@
+---
+title: "Authentification"
+description: "Échangez vos identifiants d'application contre un jeton Bearer RS256 à durée limitée."
+icon: "key"
+---
+
+## Endpoint de jeton
+
+`POST https://account.bizconnectpay.com/api/v1/auth/application/token`
+
+| Champ | Type | Description |
+| --- | --- | --- |
+| `client_id` | string | Identifiant public généré pour l'application. |
+| `client_secret` | string | Secret affiché une seule fois lors de sa création ou rotation. |
+
+Le compte doit être de type `BUSINESS`, actif et disposer d'un KYB approuvé. L'application et l'identifiant doivent également être actifs.
+
+## Utiliser le jeton
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Les jetons expirent après 3600 secondes par défaut. Demandez un nouveau jeton avec le Client ID et le secret lorsque celui-ci expire. Il n'existe pas de refresh token pour les applications serveur-à-serveur.
+
+## Scopes
+
+| Scope | Autorisation |
+| --- | --- |
+| `payments.read` | Lire les intentions de paiement. |
+| `payments.write` | Créer des collectes et dépôts. |
+| `transactions.read` | Lister et consulter les transactions. |
+| `withdrawals.read` | Consulter les décaissements. |
+| `withdrawals.write` | Créer des décaissements. |
+| `refunds.read` | Consulter les remboursements. |
+| `refunds.write` | Demander des remboursements. |
+| `payment_links.read` | Lire les liens de paiement. |
+| `payment_links.write` | Créer des liens de paiement. |
+| `virtual_cards.users.read` | Lire les porteurs de carte. |
+| `virtual_cards.users.write` | Créer les porteurs de carte. |
+| `virtual_cards.cards.read` | Lister les cartes. |
+| `virtual_cards.cards.sensitive.read` | Consulter le détail sensible d'une carte. |
+| `virtual_cards.cards.write` | Émettre une carte. |
+| `virtual_cards.cards.manage` | Alimenter, retirer, activer, désactiver ou terminer une carte. |
+
+<Warning>
+  Une rotation ou révocation de l'identifiant invalide immédiatement les jetons qu'il a émis. Une modification de scopes prend également effet sur les requêtes suivantes.
+</Warning>

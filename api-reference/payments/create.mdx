@@ -1,0 +1,81 @@
+---
+title: "Créer un paiement"
+description: "Initiez une collecte ou un dépôt avec une clé d'idempotence."
+openapi: "openapi.json POST /payments"
+---
+
+Envoyez une clé `Idempotency-Key` stable pour la même opération métier. Une nouvelle clé crée une nouvelle opération.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payments \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: order-9481-collection' \
+  --data '{
+    "amount": "15000",
+    "currency": "XAF",
+    "country": "CM",
+    "operation": "COLLECTION",
+    "payment_method": "mtn_momo",
+    "payer": {
+      "phone_number": "+237671234567",
+      "lang": "fr"
+    },
+    "description": "Paiement commande 9481",
+    "metadata": {
+      "client_reference": "CMD-2026-9481"
+    }
+  }'
+```
+
+```json Payload
+{
+  "amount": "15000",
+  "currency": "XAF",
+  "country": "CM",
+  "operation": "COLLECTION",
+  "payment_method": "mtn_momo",
+  "payer": {
+    "phone_number": "+237671234567",
+    "lang": "fr"
+  },
+  "description": "Paiement commande 9481",
+  "metadata": {
+    "client_reference": "CMD-2026-9481"
+  }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "success": true,
+  "data": {
+    "id": "c5420e62-f80a-48a8-bec8-06eabf59e486",
+    "reference": "BCP-PAY-01JAC8YMJ6",
+    "account_id": "53258554-7e6a-4e8c-b213-a521430f83ce",
+    "application_id": "56c21aef-170e-4941-a8da-e2aba353a42a",
+    "country": "CM",
+    "amount": "15000.0000",
+    "currency": "XAF",
+    "operation": "COLLECTION",
+    "payment_method": "mtn_momo",
+    "environment": "LIVE",
+    "description": "Paiement commande 9481",
+    "metadata": {
+      "client_reference": "CMD-2026-9481"
+    },
+    "status": "PENDING",
+    "expires_at": null,
+    "created_at": "2026-10-20T12:30:00.000000Z",
+    "updated_at": "2026-10-20T12:30:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "9b76a47f-914b-46ab-a15a-19d8507aa589"
+  }
+}
+```
+</ResponseExample>

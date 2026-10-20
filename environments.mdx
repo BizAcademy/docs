@@ -1,0 +1,18 @@
+---
+title: "Sandbox et Live"
+description: "Testez l'intégration avec le même contrat avant d'activer les opérations réelles."
+icon: "flask"
+---
+
+Chaque application possède son propre environnement : `SANDBOX` ou `LIVE`.
+
+| Environnement | Comportement |
+| --- | --- |
+| `SANDBOX` | Réponses contractuelles sans mouvement financier réel. |
+| `LIVE` | Routage. |
+
+L'environnement est inclus dans le jeton et contrôlé à chaque requête. Si vous changez l'environnement de l'application, demandez immédiatement un nouveau jeton.
+
+<Warning>
+  Le passage en `LIVE` nécessite une confirmation explicite, un compte actif et un KYB approuvé.
+</Warning>

@@ -1,0 +1,51 @@
+---
+title: "Créer un remboursement"
+description: "Remboursez tout ou partie d'une transaction éligible."
+openapi: "openapi.json POST /refunds"
+---
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/refunds \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: refund-cmd-9481' \
+  --data '{
+    "transaction_reference": "BCP-TXN-01JAC92Y",
+    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+    "amount": "5000",
+    "reason": "Article retourné"
+  }'
+```
+
+```json Payload
+{
+  "transaction_reference": "BCP-TXN-01JAC92Y",
+  "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+  "amount": "5000",
+  "reason": "Article retourné"
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "success": true,
+  "data": {
+    "id": "8fd9cf11-8fb8-459c-abef-62d6a4712304",
+    "reference": "BCP-REF-01JACB1F",
+    "transaction_id": "26226880-a6ea-4f91-8a6e-303fa77fe311",
+    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+    "amount": "5000.0000",
+    "reason": "Article retourné",
+    "status": "PENDING",
+    "created_at": "2026-10-20T13:15:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "56e83e0c-13fe-42d3-b6e5-ef890021313b"
+  }
+}
+```
+</ResponseExample>

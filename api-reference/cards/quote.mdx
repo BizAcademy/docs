@@ -1,0 +1,43 @@
+---
+title: "Obtenir un devis d'émission"
+description: "Calculez les frais et le débit du portefeuille avant d'émettre une carte."
+openapi: "openapi.json GET /cards/quote"
+---
+
+Le taux de change et les frais sont configurés par BizConnectPay. Demandez un nouveau devis avant chaque émission.
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url 'https://api.bizconnectpay.com/api/v1/cards/quote?debit_currency=XAF' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "card_sequence": 1,
+    "card_currency": "USD",
+    "card_creation_fee_usd": "3.30",
+    "individual_policy_fee_xaf": "2000.00",
+    "exchange_rate": {
+      "source_currency": "USD",
+      "target_currency": "XAF",
+      "rate": "606.06",
+      "display": "1 USD = 606.06 XAF"
+    },
+    "wallet_debit": {
+      "amount": "2000.00",
+      "currency": "XAF"
+    }
+  },
+  "meta": {
+    "correlation_id": "f9c35025-8a46-4238-982c-f4076c65ca47"
+  }
+}
+```
+</ResponseExample>

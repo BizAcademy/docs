@@ -1,0 +1,42 @@
+---
+title: "Consulter un porteur de carte"
+description: "Récupérez les informations à jour d'un porteur de carte."
+openapi: "openapi.json GET /cardholders/{virtualCardCustomer}"
+---
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/cardholders/f1bdad5d-bb31-410d-869c-44a28e876ded \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "reference": "BCP-CUS-67804B24CF5D3",
+    "first_name": "Amina",
+    "last_name": "Ndiaye",
+    "email": "amina@example.com",
+    "country_code": "237",
+    "contact": "690000000",
+    "dob": "1995-04-18",
+    "billing_name": "Amina Ndiaye",
+    "is_business": false,
+    "billing_address": "Bonamoussadi",
+    "billing_city": "Douala",
+    "billing_country": "CM",
+    "billing_state": "Littoral",
+    "billing_postal_code": "237",
+    "id_number": "ID-CM-908172"
+  },
+  "meta": {
+    "correlation_id": "28baf1e7-bdbf-409a-a330-da4641f877ba"
+  }
+}
+```
+</ResponseExample>

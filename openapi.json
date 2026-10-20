@@ -1,0 +1,739 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BizConnectPay API",
+    "version": "1.0.0",
+    "description": "API serveur-à-serveur pour les collectes, décaissements, transactions, remboursements, liens de paiement et cartes virtuelles."
+  },
+  "servers": [
+    {
+      "url": "https://api.bizconnectpay.com/api/v1",
+      "description": "Passerelle API BizConnectPay"
+    }
+  ],
+  "tags": [
+    { "name": "Authentification" },
+    { "name": "Services" },
+    { "name": "Collectes" },
+    { "name": "Transactions" },
+    { "name": "Décaissements" },
+    { "name": "Remboursements" },
+    { "name": "Liens de paiement" },
+    { "name": "Porteurs de carte" },
+    { "name": "Cartes virtuelles" }
+  ],
+  "paths": {
+    "/auth/application/token": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Obtenir un jeton d'application",
+        "description": "Échange un Client ID et un secret contre un jeton Bearer RS256 valable 3600 secondes par défaut.",
+        "operationId": "createApplicationToken",
+        "servers": [
+          { "url": "https://account.bizconnectpay.com/api/v1" }
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ApplicationTokenRequest" },
+              "example": {
+                "client_id": "BCP_your_client_id",
+                "client_secret": "your_application_secret"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Jeton créé",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApplicationTokenResponse" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "tags": ["Services"],
+        "summary": "Lister les services disponibles",
+        "description": "Retourne les combinaisons pays, devise, opération, méthode et fournisseur actives pour l'environnement de l'application.",
+        "operationId": "listServices",
+        "responses": {
+          "200": {
+            "description": "Catalogue disponible",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceCatalogResponse" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthenticated" }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "tags": ["Collectes"],
+        "summary": "Initier une collecte",
+        "description": "Crée une intention de paiement et lance son orchestration asynchrone. Scope requis : `payments.write`.",
+        "operationId": "createPaymentIntent",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/CorrelationId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PaymentIntentRequest" },
+              "example": {
+                "amount": "15000",
+                "currency": "XAF",
+                "country": "CM",
+                "operation": "COLLECTION",
+                "payment_method": "mtn_momo",
+                "payer": {
+                  "phone_number": "+237671234567",
+                  "lang": "fr"
+                },
+                "description": "Paiement commande 9481",
+                "metadata": { "client_reference": "CMD-2026-9481" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/payments/{paymentIntent}": {
+      "get": {
+        "tags": ["Collectes"],
+        "summary": "Consulter une intention de paiement",
+        "operationId": "getPaymentIntent",
+        "parameters": [
+          {
+            "name": "paymentIntent",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/transactions": {
+      "get": {
+        "tags": ["Transactions"],
+        "summary": "Lister les transactions",
+        "operationId": "listTransactions",
+        "parameters": [
+          { "$ref": "#/components/parameters/PerPage" },
+          { "name": "currency", "in": "query", "schema": { "type": "string", "minLength": 3, "maxLength": 3 } },
+          { "name": "environment", "in": "query", "schema": { "type": "string", "enum": ["SANDBOX", "LIVE"] } },
+          { "name": "operation", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string", "maxLength": 120 } },
+          { "name": "from", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "to", "in": "query", "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" }
+        }
+      }
+    },
+    "/transactions/{reference}": {
+      "get": {
+        "tags": ["Transactions"],
+        "summary": "Consulter une transaction",
+        "operationId": "getTransaction",
+        "parameters": [
+          { "$ref": "#/components/parameters/Reference" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/payouts": {
+      "post": {
+        "tags": ["Décaissements"],
+        "summary": "Créer un payout",
+        "description": "Débite un wallet et envoie les fonds au destinataire. Scope requis : `withdrawals.write`.",
+        "operationId": "createPayout",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/CorrelationId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WithdrawalRequest" },
+              "example": {
+                "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+                "amount": "25000",
+                "currency": "XOF",
+                "country": "CI",
+                "payment_method": "orange_money",
+                "destination": "+2250701020304",
+                "metadata": { "client_reference": "PAYOUT-5012" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/payouts/{reference}": {
+      "get": {
+        "tags": ["Décaissements"],
+        "summary": "Consulter un payout",
+        "operationId": "getPayout",
+        "parameters": [
+          { "$ref": "#/components/parameters/Reference" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/refunds": {
+      "post": {
+        "tags": ["Remboursements"],
+        "summary": "Demander un remboursement",
+        "operationId": "createRefund",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefundRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/refunds/{reference}": {
+      "get": {
+        "tags": ["Remboursements"],
+        "summary": "Consulter un remboursement",
+        "operationId": "getRefund",
+        "parameters": [
+          { "$ref": "#/components/parameters/Reference" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/payment-links": {
+      "get": {
+        "tags": ["Liens de paiement"],
+        "summary": "Lister les liens de paiement",
+        "operationId": "listPaymentLinks",
+        "parameters": [
+          { "$ref": "#/components/parameters/PerPage" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "EXPIRED"] } }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      },
+      "post": {
+        "tags": ["Liens de paiement"],
+        "summary": "Créer un lien de paiement",
+        "operationId": "createPaymentLink",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PaymentLinkRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/payment-links/{paymentLink}": {
+      "get": {
+        "tags": ["Liens de paiement"],
+        "summary": "Consulter un lien de paiement",
+        "operationId": "getPaymentLink",
+        "parameters": [
+          {
+            "name": "paymentLink",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/cardholders": {
+      "get": {
+        "tags": ["Porteurs de carte"],
+        "summary": "Lister les porteurs de carte",
+        "operationId": "listVirtualCardUsers",
+        "parameters": [{ "$ref": "#/components/parameters/PerPage" }],
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      },
+      "post": {
+        "tags": ["Porteurs de carte"],
+        "summary": "Créer un porteur de carte",
+        "operationId": "createVirtualCardUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VirtualCardUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/cardholders/{virtualCardCustomer}": {
+      "get": {
+        "tags": ["Porteurs de carte"],
+        "summary": "Consulter un porteur de carte",
+        "operationId": "getVirtualCardUser",
+        "parameters": [
+          {
+            "name": "virtualCardCustomer",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/cards": {
+      "get": {
+        "tags": ["Cartes virtuelles"],
+        "summary": "Lister les cartes virtuelles",
+        "operationId": "listVirtualCards",
+        "parameters": [{ "$ref": "#/components/parameters/PerPage" }],
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      },
+      "post": {
+        "tags": ["Cartes virtuelles"],
+        "summary": "Émettre une carte virtuelle",
+        "operationId": "createVirtualCard",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VirtualCardRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/cards/quote": {
+      "get": {
+        "tags": ["Cartes virtuelles"],
+        "summary": "Obtenir un devis d'émission",
+        "operationId": "quoteVirtualCard",
+        "parameters": [
+          {
+            "name": "debit_currency",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 3, "maxLength": 3 },
+            "example": "XAF"
+          }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      }
+    },
+    "/cards/{virtualCard}": {
+      "get": {
+        "tags": ["Cartes virtuelles"],
+        "summary": "Consulter le détail sensible d'une carte",
+        "description": "Retourne les données en temps réel du fournisseur et l'historique. Scope requis : `virtual_cards.cards.sensitive.read`. La réponse ne doit jamais être mise en cache ou journalisée.",
+        "operationId": "getVirtualCard",
+        "parameters": [
+          {
+            "name": "virtualCard",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/cards/{virtualCard}/operations": {
+      "post": {
+        "tags": ["Cartes virtuelles"],
+        "summary": "Gérer une carte virtuelle",
+        "description": "Alimente, retire, active, désactive ou termine une carte.",
+        "operationId": "operateVirtualCard",
+        "parameters": [
+          {
+            "name": "virtualCard",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VirtualCardOperationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "Clé unique et stable pour cette opération métier.",
+        "schema": { "type": "string", "maxLength": 255 }
+      },
+      "CorrelationId": {
+        "name": "X-Correlation-ID",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "Reference": {
+        "name": "reference",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" }
+      },
+      "PerPage": {
+        "name": "per_page",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 25 }
+      }
+    },
+    "schemas": {
+      "ApplicationTokenRequest": {
+        "type": "object",
+        "required": ["client_id", "client_secret"],
+        "properties": {
+          "client_id": { "type": "string", "maxLength": 80 },
+          "client_secret": { "type": "string", "maxLength": 255, "writeOnly": true }
+        }
+      },
+      "ApplicationTokenResponse": {
+        "type": "object",
+        "required": ["success", "data", "meta"],
+        "properties": {
+          "success": { "type": "boolean", "const": true },
+          "data": {
+            "type": "object",
+            "required": ["access_token", "expires_in", "token_type", "environment", "scope"],
+            "properties": {
+              "access_token": { "type": "string" },
+              "expires_in": { "type": "integer", "example": 3600 },
+              "token_type": { "type": "string", "const": "Bearer" },
+              "environment": { "type": "string", "enum": ["SANDBOX", "LIVE"] },
+              "scope": { "type": "string" }
+            }
+          },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        }
+      },
+      "PaymentIntentRequest": {
+        "type": "object",
+        "required": ["country", "amount", "currency", "operation", "payment_method", "payer"],
+        "properties": {
+          "country": { "type": "string", "minLength": 2, "maxLength": 2, "example": "CM" },
+          "amount": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "XAF" },
+          "operation": { "type": "string", "enum": ["COLLECTION", "DEPOSIT", "WITHDRAWAL", "REFUND", "TRANSFER", "PAYOUT", "REVERSAL", "FX_CONVERSION"] },
+          "payment_method": { "type": "string", "maxLength": 60 },
+          "payer": {
+            "type": "object",
+            "required": ["phone_number"],
+            "properties": {
+              "phone_number": { "type": "string", "maxLength": 32 },
+              "otp_code": { "type": ["string", "null"], "maxLength": 32 },
+              "lang": { "type": "string", "enum": ["en", "fr"] }
+            }
+          },
+          "description": { "type": ["string", "null"], "maxLength": 1000 },
+          "metadata": { "type": "object", "additionalProperties": true },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "WithdrawalRequest": {
+        "type": "object",
+        "required": ["wallet_id", "amount", "currency", "country", "payment_method", "destination"],
+        "properties": {
+          "wallet_id": { "type": "string", "format": "uuid" },
+          "amount": { "type": "number", "exclusiveMinimum": 0 },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+          "country": { "type": "string", "minLength": 2, "maxLength": 2 },
+          "payment_method": { "type": "string" },
+          "destination": { "type": "string" },
+          "metadata": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "RefundRequest": {
+        "type": "object",
+        "required": ["transaction_reference", "wallet_id", "amount", "reason"],
+        "properties": {
+          "transaction_reference": { "type": "string" },
+          "wallet_id": { "type": "string", "format": "uuid" },
+          "amount": { "type": "number", "exclusiveMinimum": 0 },
+          "reason": { "type": "string" }
+        }
+      },
+      "PaymentLinkRequest": {
+        "type": "object",
+        "required": ["amount", "country", "currency"],
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Montant à collecter, avec au plus quatre décimales."
+          },
+          "application_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "examples": ["CM"]
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "examples": ["XAF"]
+          },
+          "description": {
+            "type": ["string", "null"],
+            "maxLength": 1000
+          },
+          "expires_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Date d'expiration future au format ISO 8601."
+          },
+          "failure_url": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "maxLength": 2048
+          },
+          "max_uses": {
+            "type": ["integer", "null"],
+            "minimum": 1
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "success_url": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "maxLength": 2048
+          }
+        }
+      },
+      "VirtualCardUserRequest": {
+        "type": "object",
+        "required": ["first_name", "last_name", "email", "country_code", "contact", "dob", "billing_name", "is_business", "billing_address", "billing_city", "billing_country", "billing_state", "billing_postal_code", "id_number"],
+        "properties": {
+          "first_name": { "type": "string", "maxLength": 100 },
+          "last_name": { "type": "string", "maxLength": 100 },
+          "email": { "type": "string", "format": "email" },
+          "country_code": { "type": "string", "maxLength": 5 },
+          "contact": { "type": "string", "maxLength": 32 },
+          "dob": { "type": "string", "format": "date", "description": "Le porteur doit avoir au moins 18 ans." },
+          "billing_name": { "type": "string", "maxLength": 200 },
+          "is_business": { "type": "boolean" },
+          "business_name": { "type": ["string", "null"], "maxLength": 200 },
+          "billing_address": { "type": "string", "maxLength": 255 },
+          "billing_city": { "type": "string", "maxLength": 120 },
+          "billing_country": { "type": "string", "minLength": 2, "maxLength": 2 },
+          "billing_state": { "type": "string", "maxLength": 120 },
+          "billing_postal_code": { "type": "string", "maxLength": 32 },
+          "id_number": { "type": "string", "maxLength": 100 }
+        }
+      },
+      "VirtualCardRequest": {
+        "type": "object",
+        "required": ["customer_id", "wallet_id", "idempotency_key", "debit_currency"],
+        "properties": {
+          "customer_id": { "type": "string", "format": "uuid" },
+          "wallet_id": { "type": "string", "format": "uuid" },
+          "idempotency_key": { "type": "string", "maxLength": 100 },
+          "debit_currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+          "initial_balance": { "type": ["number", "null"], "minimum": 0 },
+          "category": { "type": ["string", "null"], "enum": ["PERSONAL", "BUSINESS", null] },
+          "grade": { "type": ["string", "null"], "enum": ["STANDARD", "PREMIUM", null] }
+        }
+      },
+      "VirtualCardOperationRequest": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": { "type": "string", "enum": ["topup", "withdraw", "enabled", "disabled", "terminate"] },
+          "amount": { "type": ["number", "null"], "exclusiveMinimum": 0, "description": "Obligatoire pour topup et withdraw." }
+        }
+      },
+      "ServiceCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "const": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "environment": { "type": "string", "enum": ["SANDBOX", "LIVE"] },
+              "services": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "country": { "type": "object", "additionalProperties": true },
+                    "currency": { "type": "object", "additionalProperties": true },
+                    "operation": { "type": "string" },
+                    "payment_method": { "type": "string" },
+                    "available": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        }
+      },
+      "SuccessEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "const": true },
+          "data": {},
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        }
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "const": false },
+          "data": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": { "type": "string" },
+                  "message": { "type": "string" },
+                  "details": { "type": ["object", "array"] }
+                }
+              }
+            }
+          },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "correlation_id": { "type": ["string", "null"], "format": "uuid" }
+        }
+      }
+    },
+    "responses": {
+      "Success": {
+        "description": "Requête traitée",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SuccessEnvelope" } } }
+      },
+      "Created": {
+        "description": "Ressource créée",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SuccessEnvelope" } } }
+      },
+      "Unauthenticated": {
+        "description": "Authentification requise ou invalide",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+      },
+      "Forbidden": {
+        "description": "Scope ou état de compte insuffisant",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+      },
+      "NotFound": {
+        "description": "Ressource introuvable",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+      },
+      "ValidationError": {
+        "description": "Payload ou règle métier invalide",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+      }
+    }
+  },
+  "security": [
+    { "bearerAuth": [] }
+  ]
+}

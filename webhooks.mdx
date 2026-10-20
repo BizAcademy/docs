@@ -1,0 +1,40 @@
+---
+title: "Webhooks"
+description: "Recevez les changements d'état définitifs et vérifiez leur signature."
+icon: "webhook"
+---
+
+Configurez une URL HTTPS depuis la section Développeurs du tableau de bord. Le secret de signature est affiché une seule fois lors de la création ou rotation du webhook.
+
+## Événements principaux
+
+- `bizconnectpay.payment.completed.v1`
+- `bizconnectpay.payment.failed.v1`
+- `bizconnectpay.payout.completed.v1`
+- `bizconnectpay.payout.failed.v1`
+- `bizconnectpay.refund.completed.v1`
+- `bizconnectpay.refund.failed.v1`
+- `bizconnectpay.virtual_card.updated.v1`
+
+## Vérifier la signature
+
+Calculez le HMAC-SHA256 du corps HTTP brut avec le secret du webhook et comparez-le à `X-BizConnectPay-Signature` avec une comparaison en temps constant.
+
+```js
+import crypto from "node:crypto";
+
+const received = request.headers["x-bizconnectpay-signature"];
+const expected = crypto
+  .createHmac("sha256", process.env.BIZCONNECTPAY_WEBHOOK_SECRET)
+  .update(request.rawBody)
+  .digest("hex");
+
+const valid =
+  typeof received === "string" &&
+  received.length === expected.length &&
+  crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
+```
+
+<Warning>
+  Répondez rapidement avec un statut `2xx`, rendez le traitement idempotent avec l'identifiant d'événement, puis effectuez les traitements lourds dans une file de tâches.
+</Warning>

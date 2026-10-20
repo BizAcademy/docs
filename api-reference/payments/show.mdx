@@ -1,0 +1,41 @@
+---
+title: "Consulter un paiement"
+description: "Consultez l'état courant d'une intention de paiement."
+openapi: "openapi.json GET /payments/{paymentIntent}"
+---
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/payments/c5420e62-f80a-48a8-bec8-06eabf59e486 \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "id": "c5420e62-f80a-48a8-bec8-06eabf59e486",
+    "reference": "BCP-PAY-01JAC8YMJ6",
+    "country": "CM",
+    "amount": "15000.0000",
+    "currency": "XAF",
+    "operation": "COLLECTION",
+    "payment_method": "mtn_momo",
+    "environment": "LIVE",
+    "status": "COMPLETED",
+    "metadata": {
+      "client_reference": "CMD-2026-9481"
+    },
+    "created_at": "2026-10-20T12:30:00.000000Z",
+    "updated_at": "2026-10-20T12:31:18.000000Z"
+  },
+  "meta": {
+    "correlation_id": "ad67ab3c-3905-4396-b246-1931147bb3cd"
+  }
+}
+```
+</ResponseExample>

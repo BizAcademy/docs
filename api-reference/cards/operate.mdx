@@ -1,0 +1,46 @@
+---
+title: "Gérer une carte virtuelle"
+description: "Alimentez, retirez, activez, désactivez ou terminez une carte."
+openapi: "openapi.json POST /cards/{virtualCard}/operations"
+---
+
+Le champ `amount` est obligatoire uniquement pour `topup` et `withdraw`.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/cards/3b2c08e5-d8f2-4886-aad1-88977d455ff8/operations \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "action": "topup",
+    "amount": "25.00"
+  }'
+```
+
+```json Payload
+{
+  "action": "topup",
+  "amount": "25.00"
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "card_id": "38537f3f-3948-43af-fd9d-08df17dfe646",
+    "action": "topup",
+    "amount": "25.00",
+    "currency": "USD",
+    "balance": "27.00",
+    "status": "successful"
+  },
+  "meta": {
+    "correlation_id": "f9c35025-8a46-4238-982c-f4076c65ca47"
+  }
+}
+```
+</ResponseExample>

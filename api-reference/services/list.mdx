@@ -1,0 +1,45 @@
+---
+title: "Lister les services disponibles"
+description: "Récupérez les pays, devises, opérations et moyens de paiement disponibles."
+openapi: "openapi.json GET /services"
+---
+
+Le catalogue dépend de l'environnement de l'application et de la disponibilité des fournisseurs.
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/services \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "environment": "LIVE",
+    "services": [
+      {
+        "country": {
+          "code": "CM",
+          "name": "CAMEROON"
+        },
+        "currency": {
+          "code": "XAF",
+          "name": "Central African CFA franc"
+        },
+        "operation": "COLLECTION",
+        "payment_method": "mtn_momo",
+        "available": true
+      }
+    ]
+  },
+  "meta": {
+    "correlation_id": "c30f1873-46cb-4a3c-9297-bff42de5cb35"
+  }
+}
+```
+</ResponseExample>

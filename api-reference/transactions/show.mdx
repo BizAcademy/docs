@@ -1,0 +1,43 @@
+---
+title: "Consulter une transaction"
+description: "Récupérez une transaction à partir de sa référence BizConnectPay."
+openapi: "openapi.json GET /transactions/{reference}"
+---
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/transactions/BCP-TXN-01JAC92Y \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "id": "26226880-a6ea-4f91-8a6e-303fa77fe311",
+    "reference": "BCP-TXN-01JAC92Y",
+    "operation": "COLLECTION",
+    "amount": "15000.0000",
+    "fee_amount": "300.0000",
+    "net_amount": "14700.0000",
+    "currency": "XAF",
+    "country": "CM",
+    "provider_reference": "PIM261020123100001",
+    "environment": "LIVE",
+    "status": "COMPLETED",
+    "metadata": {
+      "client_reference": "CMD-2026-9481"
+    },
+    "completed_at": "2026-10-20T12:31:18.000000Z",
+    "created_at": "2026-10-20T12:30:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "987c6685-6a7c-4608-83d8-7fe49e309d5e"
+  }
+}
+```
+</ResponseExample>

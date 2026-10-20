@@ -1,0 +1,63 @@
+---
+title: "Créer un payout"
+description: "Envoyez des fonds depuis un portefeuille vers un bénéficiaire."
+openapi: "openapi.json POST /payouts"
+---
+
+La clé `Idempotency-Key` empêche un double décaissement lors d'une nouvelle tentative.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payouts \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: payout-5012' \
+  --data '{
+    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+    "amount": "25000",
+    "currency": "XOF",
+    "country": "CI",
+    "payment_method": "orange_money",
+    "destination": "+2250701020304",
+    "metadata": {"client_reference": "PAYOUT-5012"}
+  }'
+```
+
+```json Payload
+{
+  "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+  "amount": "25000",
+  "currency": "XOF",
+  "country": "CI",
+  "payment_method": "orange_money",
+  "destination": "+2250701020304",
+  "metadata": {
+    "client_reference": "PAYOUT-5012"
+  }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "success": true,
+  "data": {
+    "id": "a1a3a073-7578-47ab-af2b-c81bb923e74f",
+    "reference": "BCP-OUT-01JACA2H",
+    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+    "amount": "25000.0000",
+    "currency": "XOF",
+    "country": "CI",
+    "payment_method": "orange_money",
+    "destination": "+2250701020304",
+    "status": "PENDING",
+    "created_at": "2026-10-20T13:00:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "35ca88fb-f470-4643-a3aa-879a7c129955"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,68 @@
+---
+title: "Créer un lien de paiement"
+description: "Créez une page de paiement hébergée par BizConnectPay."
+openapi: "openapi.json POST /payment-links"
+---
+
+Cet endpoint est réservé aux comptes `BUSINESS` dont le KYB est approuvé.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payment-links \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "amount": "12500",
+    "currency": "XAF",
+    "country": "CM",
+    "description": "Facture octobre",
+    "max_uses": 1,
+    "expires_at": "2026-10-31T23:59:59Z",
+    "success_url": "https://example.com/payment/success",
+    "failure_url": "https://example.com/payment/failed",
+    "metadata": {"client_reference": "INV-2026-1008"}
+  }'
+```
+
+```json Payload
+{
+  "amount": "12500",
+  "currency": "XAF",
+  "country": "CM",
+  "description": "Facture octobre",
+  "max_uses": 1,
+  "expires_at": "2026-10-31T23:59:59Z",
+  "success_url": "https://example.com/payment/success",
+  "failure_url": "https://example.com/payment/failed",
+  "metadata": {
+    "client_reference": "INV-2026-1008"
+  }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "success": true,
+  "data": {
+    "id": "b80736cf-514a-462b-b110-b04c6031b64a",
+    "reference": "BCP-LNK-01JACC0N",
+    "amount": "12500.0000",
+    "currency": "XAF",
+    "country": "CM",
+    "description": "Facture octobre",
+    "status": "ACTIVE",
+    "max_uses": 1,
+    "use_count": 0,
+    "checkout_url": "https://pay.bizconnectpay.com/link/0PKOW1IM14",
+    "expires_at": "2026-10-31T23:59:59.000000Z",
+    "created_at": "2026-10-20T13:30:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "b39b6c1d-d682-4f61-8839-93b8a9bd76e7"
+  }
+}
+```
+</ResponseExample>

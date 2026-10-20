@@ -1,0 +1,35 @@
+---
+title: "Consulter un remboursement"
+description: "Consultez un remboursement avec sa référence BizConnectPay."
+openapi: "openapi.json GET /refunds/{reference}"
+---
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/refunds/BCP-REF-01JACB1F \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <access_token>'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "id": "8fd9cf11-8fb8-459c-abef-62d6a4712304",
+    "reference": "BCP-REF-01JACB1F",
+    "amount": "5000.0000",
+    "reason": "Article retourné",
+    "provider_reference": "RFM261020131700003",
+    "status": "COMPLETED",
+    "created_at": "2026-10-20T13:15:00.000000Z",
+    "updated_at": "2026-10-20T13:17:05.000000Z"
+  },
+  "meta": {
+    "correlation_id": "56e83e0c-13fe-42d3-b6e5-ef890021313b"
+  }
+}
+```
+</ResponseExample>

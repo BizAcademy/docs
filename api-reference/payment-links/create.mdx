@@ -15,13 +15,9 @@ curl --request POST \
   --data '{
     "amount": "12500",
     "currency": "XAF",
-    "country": "CM",
     "description": "Facture octobre",
     "max_uses": 1,
-    "expires_at": "2026-10-31T23:59:59Z",
-    "success_url": "https://example.com/payment/success",
-    "failure_url": "https://example.com/payment/failed",
-    "metadata": {"client_reference": "INV-2026-1008"}
+    "expires_at": "2026-10-31T23:59:59Z"
   }'
 ```
 
@@ -29,15 +25,9 @@ curl --request POST \
 {
   "amount": "12500",
   "currency": "XAF",
-  "country": "CM",
   "description": "Facture octobre",
   "max_uses": 1,
-  "expires_at": "2026-10-31T23:59:59Z",
-  "success_url": "https://example.com/payment/success",
-  "failure_url": "https://example.com/payment/failed",
-  "metadata": {
-    "client_reference": "INV-2026-1008"
-  }
+  "expires_at": "2026-10-31T23:59:59Z"
 }
 ```
 </RequestExample>
@@ -51,7 +41,6 @@ curl --request POST \
     "reference": "BCP-LNK-01JACC0N",
     "amount": "12500.0000",
     "currency": "XAF",
-    "country": "CM",
     "description": "Facture octobre",
     "status": "ACTIVE",
     "max_uses": 1,

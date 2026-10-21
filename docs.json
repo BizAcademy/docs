@@ -57,7 +57,7 @@
           },
           {
             "group": "Liens de paiement",
-            "pages": ["api-reference/payment-links/list", "api-reference/payment-links/create", "api-reference/payment-links/show"]
+            "pages": ["api-reference/payment-links/list", "api-reference/payment-links/create", "api-reference/payment-links/show", "api-reference/payment-links/checkout"]
           },
           {
             "group": "Porteurs de carte",

@@ -1,0 +1,45 @@
+---
+title: "Checkout public"
+description: "Affichez un lien et envoyez une demande de paiement au téléphone du payeur."
+openapi: "openapi.json POST /payment-links/{code}/checkout"
+---
+
+La page hébergée est disponible à l’adresse `https://pay.bizconnectpay.com/link/{code}`. Elle récupère les moyens de paiement disponibles sans exposer le fournisseur utilisé.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payment-links/0PKOW1IM14/checkout \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: checkout-1001' \
+  --data '{
+    "email": "payer@example.com",
+    "phone_number": "+237690000000",
+    "payment_method": "MOBILE_MONEY"
+  }'
+```
+
+```json Payload
+{
+  "email": "payer@example.com",
+  "phone_number": "+237690000000",
+  "payment_method": "MOBILE_MONEY"
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202 Accepted
+{
+  "success": true,
+  "data": {
+    "message": "Payment request sent. Approve it on your phone.",
+    "payment_reference": "BCP-PI-01JACC0N",
+    "status": "CREATED"
+  },
+  "meta": {
+    "correlation_id": "b39b6c1d-d682-4f61-8839-93b8a9bd76e7"
+  }
+}
+```
+</ResponseExample>

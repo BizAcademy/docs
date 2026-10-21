@@ -302,6 +302,41 @@
         }
       }
     },
+    "/payment-links/{code}/checkout": {
+      "get": {
+        "tags": ["Liens de paiement"],
+        "summary": "Afficher un checkout public",
+        "operationId": "getPublicPaymentLinkCheckout",
+        "security": [],
+        "parameters": [
+          { "name": "code", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 20 } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "post": {
+        "tags": ["Liens de paiement"],
+        "summary": "Envoyer une demande de paiement depuis le checkout",
+        "operationId": "submitPublicPaymentLinkCheckout",
+        "security": [],
+        "parameters": [
+          { "name": "code", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 20 } },
+          { "name": "Idempotency-Key", "in": "header", "required": true, "schema": { "type": "string", "maxLength": 100 } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/PaymentLinkCheckoutRequest" } }
+          }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
     "/cardholders": {
       "get": {
         "tags": ["Porteurs de carte"],
@@ -550,7 +585,7 @@
       },
       "PaymentLinkRequest": {
         "type": "object",
-        "required": ["amount", "country", "currency"],
+        "required": ["amount", "currency"],
         "additionalProperties": false,
         "properties": {
           "amount": {
@@ -561,12 +596,6 @@
           "application_id": {
             "type": ["string", "null"],
             "format": "uuid"
-          },
-          "country": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 2,
-            "examples": ["CM"]
           },
           "currency": {
             "type": "string",
@@ -583,24 +612,20 @@
             "format": "date-time",
             "description": "Date d'expiration future au format ISO 8601."
           },
-          "failure_url": {
-            "type": ["string", "null"],
-            "format": "uri",
-            "maxLength": 2048
-          },
           "max_uses": {
             "type": ["integer", "null"],
             "minimum": 1
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "success_url": {
-            "type": ["string", "null"],
-            "format": "uri",
-            "maxLength": 2048
           }
+        }
+      },
+      "PaymentLinkCheckoutRequest": {
+        "type": "object",
+        "required": ["email", "phone_number", "payment_method"],
+        "additionalProperties": false,
+        "properties": {
+          "email": { "type": "string", "format": "email", "maxLength": 255 },
+          "phone_number": { "type": "string", "pattern": "^\\+[1-9][0-9]{7,14}$", "examples": ["+237690000000"] },
+          "payment_method": { "type": "string", "maxLength": 60, "examples": ["MOBILE_MONEY"] }
         }
       },
       "VirtualCardUserRequest": {
@@ -713,6 +738,10 @@
       },
       "Created": {
         "description": "Ressource créée",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SuccessEnvelope" } } }
+      },
+      "Accepted": {
+        "description": "Demande acceptée pour traitement",
         "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SuccessEnvelope" } } }
       },
       "Unauthenticated": {

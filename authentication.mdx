@@ -21,7 +21,7 @@ Le compte doit être de type `BUSINESS`, actif et disposer d'un KYB approuvé. L
 Authorization: Bearer <access_token>
 ```
 
-Les jetons expirent après 3600 secondes par défaut. Demandez un nouveau jeton avec le Client ID et le secret lorsque celui-ci expire. Il n'existe pas de refresh token pour les applications serveur-à-serveur.
+Les jetons d'application ont une durée de validité de **24 heures (`86400` secondes)**. À l'expiration de ce délai de 24 heures, le marchand doit générer un nouveau jeton en appelant l'endpoint avec son `client_id` et son `client_secret`. Il n'existe pas de refresh token pour les applications serveur-à-serveur.
 
 ## Scopes
 

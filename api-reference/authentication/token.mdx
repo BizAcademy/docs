@@ -4,7 +4,7 @@ description: "Échangez les identifiants d'une application contre un jeton Beare
 openapi: "openapi.json POST /auth/application/token"
 ---
 
-Utilisez uniquement cet endpoint depuis votre serveur. Le jeton expire après `3600` secondes et doit être réutilisé jusqu'à son expiration.
+Utilisez uniquement cet endpoint depuis votre serveur. Le jeton généré avec le `client_id` et le `client_secret` a une durée de validité de **24 heures (`86400` secondes)** et doit être réutilisé jusqu'à son expiration. Après 24 heures, vous devez générer un nouveau jeton.
 
 <RequestExample>
 ```bash cURL
@@ -32,7 +32,7 @@ curl --request POST \
   "success": true,
   "data": {
     "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...",
-    "expires_in": 3600,
+    "expires_in": 86400,
     "token_type": "Bearer",
     "environment": "LIVE",
     "scope": "payments.read payments.write transactions.read"

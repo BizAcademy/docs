@@ -27,7 +27,7 @@
       "post": {
         "tags": ["Authentification"],
         "summary": "Obtenir un jeton d'application",
-        "description": "Échange un Client ID et un secret contre un jeton Bearer RS256 valable 3600 secondes par défaut.",
+        "description": "Échange un Client ID et un secret contre un jeton Bearer RS256 valable 24 heures (86400 secondes). À l'expiration des 24 heures, le marchand doit générer un nouveau jeton.",
         "operationId": "createApplicationToken",
         "servers": [
           { "url": "https://account.bizconnectpay.com/api/v1" }
@@ -528,7 +528,7 @@
             "required": ["access_token", "expires_in", "token_type", "environment", "scope"],
             "properties": {
               "access_token": { "type": "string" },
-              "expires_in": { "type": "integer", "example": 3600 },
+              "expires_in": { "type": "integer", "example": 86400, "description": "Durée de validité du jeton en secondes (24 heures = 86400 secondes)." },
               "token_type": { "type": "string", "const": "Bearer" },
               "environment": { "type": "string", "enum": ["SANDBOX", "LIVE"] },
               "scope": { "type": "string" }

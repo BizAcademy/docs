@@ -20,7 +20,8 @@
     { "name": "Remboursements" },
     { "name": "Liens de paiement" },
     { "name": "Porteurs de carte" },
-    { "name": "Cartes virtuelles" }
+    { "name": "Cartes virtuelles" },
+    { "name": "Notifications" }
   ],
   "paths": {
     "/auth/application/token": {
@@ -472,6 +473,138 @@
           "422": { "$ref": "#/components/responses/ValidationError" }
         }
       }
+    },
+    "/notifications/plans": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Consulter les forfaits d'abonnement aux notifications",
+        "description": "Retourne le catalogue des forfaits (BASIC, PRO, ENTERPRISE) avec les canaux autorisés, quotas quotidiens (globaux et WhatsApp) et tarifs.",
+        "operationId": "listNotificationPlans",
+        "security": [],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" }
+        }
+      }
+    },
+    "/notifications/subscription": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Consulter l'abonnement actif et la consommation",
+        "description": "Retourne les détails de l'abonnement en cours du compte marchand, l'état de renouvellement automatique et les compteurs d'utilisation quotidienne par canal.",
+        "operationId": "getNotificationSubscription",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" }
+        }
+      }
+    },
+    "/notifications/subscribe": {
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Souscrire à un forfait de notifications",
+        "description": "Souscrit au forfait choisi (BASIC, PRO, ENTERPRISE) avec débit direct et sécurisé depuis le portefeuille de l'entreprise (réservation et capture).",
+        "operationId": "subscribeNotificationPlan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NotificationSubscribeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/notifications/messages": {
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Envoyer une notification",
+        "description": "Transmet une notification par SMS, EMAIL ou WHATSAPP. Scope requis : `notifications.write`. Requiert un abonnement d'entreprise actif.",
+        "operationId": "sendNotificationMessage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NotificationMessageRequest" }
+            }
+          }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/notifications/messages/{id}": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Consulter l'état d'un message",
+        "description": "Retourne le statut d'acheminement en temps réel d'un message (`queued`, `sent`, `delivered`, `failed`, `opted_out`). Scope requis : `notifications.read`.",
+        "operationId": "getNotificationMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/whatsapp/session/connect": {
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Connecter une session WhatsApp (Baileys)",
+        "description": "Génère un QR Code ou un code de jumelage à 8 chiffres pour lier un numéro WhatsApp d'entreprise ou individuel au worker Baileys.",
+        "operationId": "connectWhatsAppSession",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WhatsAppConnectRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" }
+        }
+      }
+    },
+    "/whatsapp/session/status": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Consulter le statut de la session WhatsApp",
+        "description": "Indique si la session WhatsApp est connectée, déconnectée ou en attente d'authentification QR.",
+        "operationId": "getWhatsAppSessionStatus",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" }
+        }
+      }
+    },
+    "/whatsapp/session/disconnect": {
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Déconnecter la session WhatsApp",
+        "description": "Ferme le socket WhatsApp et réinitialise les identifiants d'authentification de la session.",
+        "operationId": "disconnectWhatsAppSession",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" }
+        }
+      }
     }
   },
   "components": {
@@ -694,6 +827,32 @@
             }
           },
           "meta": { "$ref": "#/components/schemas/Meta" }
+        }
+      },
+      "NotificationSubscribeRequest": {
+        "type": "object",
+        "required": ["plan", "wallet_id"],
+        "properties": {
+          "plan": { "type": "string", "enum": ["BASIC", "PRO", "ENTERPRISE"] },
+          "wallet_id": { "type": "string", "format": "uuid" },
+          "auto_renew": { "type": "boolean", "default": true }
+        }
+      },
+      "NotificationMessageRequest": {
+        "type": "object",
+        "required": ["channel", "recipient_address", "message"],
+        "properties": {
+          "channel": { "type": "string", "enum": ["SMS", "EMAIL", "WHATSAPP"] },
+          "recipient_address": { "type": "string", "description": "Numéro de téléphone E.164 (+237...) ou adresse email" },
+          "message": { "type": "string", "description": "Contenu texte de la notification" },
+          "subject": { "type": "string", "description": "Objet de la notification (EMAIL)" }
+        }
+      },
+      "WhatsAppConnectRequest": {
+        "type": "object",
+        "properties": {
+          "mode": { "type": "string", "enum": ["QR", "PAIRING_CODE"], "default": "QR" },
+          "phone_number": { "type": "string", "description": "Numéro international si mode=PAIRING_CODE (+237...)" }
         }
       },
       "SuccessEnvelope": {

@@ -66,6 +66,18 @@
           {
             "group": "Cartes virtuelles",
             "pages": ["api-reference/cards/list", "api-reference/cards/create", "api-reference/cards/quote", "api-reference/cards/show", "api-reference/cards/operate"]
+          },
+          {
+            "group": "Notifications",
+            "pages": [
+              "api-reference/notifications/plans",
+              "api-reference/notifications/send",
+              "api-reference/notifications/show",
+              "api-reference/notifications/subscription",
+              "api-reference/notifications/subscribe",
+              "api-reference/notifications/whatsapp-connect",
+              "api-reference/notifications/whatsapp-status"
+            ]
           }
         ]
       }

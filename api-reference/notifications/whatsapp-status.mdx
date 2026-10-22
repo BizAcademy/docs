@@ -1,0 +1,36 @@
+---
+title: "Statut de la session WhatsApp"
+description: "Vérifiez l'état de connexion et le numéro associé à votre passerelle WhatsApp Baileys."
+openapi: "openapi.json GET /whatsapp/session/status"
+---
+
+Retourne l'état de liaison actuel :
+- `CONNECTED` : Le compte WhatsApp est lié et prêt à délivrer des notifications.
+- `QR_READY` / `PAIRING_CODE_READY` : Session en attente de numérisation ou de saisie du code.
+- `DISCONNECTED` : Aucune session active.
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/whatsapp/session/status \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Accept: application/json'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": {
+    "status": "CONNECTED",
+    "phone_number": "+237699001122",
+    "updated_at": "2026-10-22T17:10:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "84a30e20-7f28-4859-ae94-3965b1b4689b"
+  }
+}
+```
+</ResponseExample>
+

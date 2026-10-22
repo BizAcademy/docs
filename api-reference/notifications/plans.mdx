@@ -1,0 +1,56 @@
+---
+title: "Consulter les forfaits de notification"
+description: "Consultez les forfaits d'abonnement disponibles (BASIC, PRO, ENTERPRISE), leurs canaux autorisés et leurs quotas quotidiens."
+openapi: "openapi.json GET /notifications/plans"
+---
+
+Les forfaits contrôlent les canaux autorisés et les quotas journaliers pour l'ensemble des envois de notifications de votre entreprise :
+- **BASIC** : SMS et EMAIL (50 notifications/jour max, 0 WhatsApp).
+- **PRO** : SMS, EMAIL et WHATSAPP (500 notifications/jour max, dont 100 WhatsApp).
+- **ENTERPRISE** : SMS, EMAIL et WHATSAPP (10 000 notifications/jour max, dont 500 WhatsApp, file prioritaire).
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api.bizconnectpay.com/api/v1/notifications/plans \
+  --header 'Accept: application/json'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "success": true,
+  "data": [
+    {
+      "code": "BASIC",
+      "name": "Forfait Basique",
+      "channels": ["SMS", "EMAIL"],
+      "max_daily_notifications": 50,
+      "max_daily_whatsapp": 0,
+      "price_xaf": 0
+    },
+    {
+      "code": "PRO",
+      "name": "Forfait Pro",
+      "channels": ["SMS", "EMAIL", "WHATSAPP"],
+      "max_daily_notifications": 500,
+      "max_daily_whatsapp": 100,
+      "price_xaf": 25000
+    },
+    {
+      "code": "ENTERPRISE",
+      "name": "Forfait Entreprise",
+      "channels": ["SMS", "EMAIL", "WHATSAPP"],
+      "max_daily_notifications": 10000,
+      "max_daily_whatsapp": 500,
+      "price_xaf": 75000
+    }
+  ],
+  "meta": {
+    "correlation_id": "97e20120-cf9c-4740-9742-8cbfd8a4a584"
+  }
+}
+```
+</ResponseExample>
+

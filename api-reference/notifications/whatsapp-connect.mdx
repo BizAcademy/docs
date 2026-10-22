@@ -1,0 +1,63 @@
+---
+title: "Connecter une session WhatsApp"
+description: "Initialisez l'appairage WhatsApp par QR Code ou par code de jumelage à 8 chiffres via la passerelle Baileys."
+openapi: "openapi.json POST /whatsapp/session/connect"
+---
+
+Deux modes d'authentification sont supportés :
+- `QR` : Retourne un `qr_data_url` (Data URL image base64) à afficher pour scan depuis WhatsApp (*Appareils connectés > Connecter un appareil*).
+- `PAIRING_CODE` : Retourne un code à 8 chiffres (`pairing_code`, ex: `4892-7104`) à saisir dans WhatsApp sans appareil photo.
+
+<RequestExample>
+```bash cURL (Scan QR Code)
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/whatsapp/session/connect \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "mode": "QR"
+  }'
+```
+
+```bash cURL (Code de jumelage)
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/whatsapp/session/connect \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "mode": "PAIRING_CODE",
+    "phone_number": "+237699001122"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK (QR Code)
+{
+  "success": true,
+  "data": {
+    "status": "QR_READY",
+    "qr_data_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "mode": "QR"
+  },
+  "meta": {
+    "correlation_id": "84a30e20-7f28-4859-ae94-3965b1b4689b"
+  }
+}
+```
+
+```json 200 OK (Code de jumelage)
+{
+  "success": true,
+  "data": {
+    "status": "PAIRING_CODE_READY",
+    "pairing_code": "4892-7104",
+    "mode": "PAIRING_CODE"
+  },
+  "meta": {
+    "correlation_id": "84a30e20-7f28-4859-ae94-3965b1b4689b"
+  }
+}
+```
+</ResponseExample>
+

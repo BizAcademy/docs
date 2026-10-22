@@ -1,0 +1,47 @@
+---
+title: "Envoyer une notification"
+description: "Transmettez une notification transactionnelle ou marketing par SMS, EMAIL ou WHATSAPP. Scope requis : notifications.write."
+openapi: "openapi.json POST /notifications/messages"
+---
+
+L'envoi de notifications requiert un abonnement actif pour le compte marchand (`PRO` ou `ENTERPRISE` pour le canal WhatsApp).
+
+### Protection anti-bannissement WhatsApp
+Les envois WhatsApp s'appuient sur notre passerelle Baileys intégrée et appliquent des sécurités strictes :
+- Délais aléatoires gaussiens de 2s à 8s (distribution Box-Muller).
+- Simulation de saisie humaine (`composing` / `paused`).
+- Prise en charge automatique des mots-clés d'opt-out `STOP` et d'opt-in `START`.
+- Mise en liste noire temporaire de 7 jours pour tout numéro non joignable afin de préserver la réputation de l'expéditeur.
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/notifications/messages \
+  --header 'Authorization: Bearer <application_access_token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "channel": "WHATSAPP",
+    "recipient_address": "+237699001122",
+    "message": "Bonjour ! Votre paiement pour la commande #1042 a bien été confirmé."
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202 Accepted
+{
+  "success": true,
+  "data": {
+    "message_id": "b304c0ec-6949-4171-8bc9-57ef9a9870be",
+    "channel": "WHATSAPP",
+    "recipient_address": "+237699001122",
+    "status": "queued",
+    "created_at": "2026-10-22T17:00:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "0d207567-9d7a-4221-a537-8ffb64a2f8b5"
+  }
+}
+```
+</ResponseExample>
+

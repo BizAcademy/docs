@@ -1,0 +1,60 @@
+---
+title: "Notifications & Connexion WhatsApp"
+description: "Gérez vos plans de notification, l'envoi d'alertes par SMS et l'appairage direct de votre numéro WhatsApp."
+icon: "message"
+---
+
+BizConnectPay dispose d'un moteur de notifications multi-canaux (SMS, WhatsApp, Email, Webhooks) permettant d'alerter automatiquement vos clients lors de chaque paiement ou de renforcer la sécurité de votre compte avec la double authentification.
+
+---
+
+## Forfaits de notifications (Plans)
+
+Pour utiliser le canal d'envoi automatique de reçus et messages transactionnels sur WhatsApp et SMS, un forfait actif est requis :
+
+| Plan | Quota mensuel | Canaux inclus | Reçus automatisés | Traçabilité |
+| :--- | :--- | :--- | :--- | :--- |
+| **STARTER** | 500 messages | Email, SMS, WhatsApp | Oui | `SUB-XXXXXXXX` |
+| **GROWTH** | 2 500 messages | Email, SMS, WhatsApp | Oui (avec modèle sur-mesure) | `SUB-XXXXXXXX` |
+| **PRO** | 10 000 messages | Email, SMS, WhatsApp | Oui (support prioritaire) | `SUB-XXXXXXXX` |
+| **ENTERPRISE** | Volume illimité | Dédié + Haute disponibilité | Oui | `SUB-XXXXXXXX` |
+
+### Souscription et Renouvellement automatique
+
+- **Paiement direct** : Le règlement du forfait est prélevé instantanément sur votre solde disponible.
+- **Traçabilité comptable** : Chaque souscription génère une transaction enregistrée dans votre historique sous le libellé `NOTIFICATION_PLAN_SUBSCRIPTION` avec une référence `SUB-...`.
+- **Option de renouvellement** : Vous pouvez cocher ou décocher le renouvellement automatique à tout moment pour éviter toute interruption de service pour vos clients.
+
+---
+
+## Règles selon le type de compte
+
+- **Comptes Entreprise (Business)** : Accès complet au catalogue des forfaits, aux notifications transactionnelles clients et à la connexion WhatsApp professionnelle.
+- **Comptes Individuels** : Les forfaits commerciaux sont masqués. L'onglet WhatsApp permet exclusivement de connecter un numéro pour recevoir les **codes de double authentification (2FA via WhatsApp)**.
+
+---
+
+## Connecter votre compte WhatsApp
+
+Dans l'onglet **Connexion WhatsApp**, associez votre numéro de téléphone pour émettre des messages via l'API Baileys / WhatsApp Multi-Device :
+
+### 1. Sélection de l'indicatif international
+Un sélecteur complet de pays vous permet de choisir votre indicatif (configuré par défaut sur **+237 Cameroun**).
+
+### 2. Méthode d'appairage : Code QR
+1. Saisissez votre numéro de téléphone et cliquez sur **Démarrer la connexion**.
+2. Un **Code QR dynamique** s'affiche à l'écran.
+3. Ouvrez WhatsApp sur votre smartphone > **Appareils connectés** > **Connecter un appareil**.
+4. Scannez le Code QR affiché sur votre écran d'ordinateur.
+
+### 3. Méthode d'appairage alternative : Code d'appairage à 8 chiffres (Pairing Code)
+Si vous ne pouvez pas scanner le QR code (ex: vous utilisez votre tableau de bord directement sur votre smartphone) :
+1. Un **Code à 8 chiffres** (ex: `K9B3-7TZ1`) est automatiquement fourni.
+2. Cliquez sur le bouton **Copier le code**.
+3. Dans WhatsApp sur votre smartphone, appuyez sur la notification « Saisir le code d'association » et collez le code copié.
+
+### 4. Statuts de connexion
+- `DISCONNECTED` : Aucune session active.
+- `CONNECTING` : En cours d'établissement avec WhatsApp (Code QR ou Pairing Code généré).
+- `CONNECTED` : Session validée et prête à émettre des notifications instantanées.
+

@@ -1,0 +1,49 @@
+---
+title: "Vérification & Conformité (KYC / KYB)"
+description: "Validez votre identité et vos documents d'entreprise pour lever les plafonds opérationnels."
+icon: "id-card"
+---
+
+BizConnectPay applique les exigences réglementaires de lutte contre le blanchiment d'argent et le financement du terrorisme (LCB-FT / AML). La validation de votre profil est obligatoire pour débloquer l'ensemble des services d'encaissement et de décaissement.
+
+---
+
+## Niveaux de vérification
+
+Le tableau de bord distingue deux typologies de comptes selon la forme juridique de votre activité :
+
+### 1. Compte Individuel (KYC - Know Your Customer)
+Conçu pour les entrepreneurs individuels, freelances et créateurs de contenu indépendants.
+
+Documents requis :
+- **Pièce d'identité officielle en cours de validité** : Carte Nationale d'Identité (recto/verso), Passeport biométrique, ou Permis de conduire numérique.
+- **Justificatif de domicile récent (< 3 mois)** : Facture d'électricité (ENEO), d'eau (CAMWATER), relevé bancaire ou certificat de résidence légalisé.
+- **Selfie de vérification** : Photo en direct assurant la correspondance biométrique avec la pièce d'identité.
+
+### 2. Compte Entreprise / Business (KYB - Know Your Business)
+Conçu pour les SARL, SAS, SA, établissements commerciaux déclarés et organisations.
+
+Documents requis :
+- **Registre du Commerce et du Crédit Mobilier (RCCM)** officiel.
+- **Numéro d'Identifiant Unique (NIU)** ou attestation d'immatriculation fiscale.
+- **Statuts certifiés conformes** de la société.
+- **Pièce d'identité officielle du représentant légal** (gérant ou administrateur général).
+- **Plan de localisation ou quittance de loyer commercial** attestant de l'adresse du siège social.
+
+---
+
+## États de validation
+
+Votre dossier passe par les statuts suivants visibles en temps réel dans l'onglet **Vérification** :
+
+| Statut | Signification | Actions autorisées |
+| :--- | :--- | :--- |
+| `UNVERIFIED` | Compte créé, aucun document soumis | Découverte du dashboard, environnement Sandbox |
+| `PENDING` | Documents transmis, analyse en cours par l'équipe conformité | Préparation de vos liens et intégrations API |
+| `VERIFIED` | Dossier approuvé par le pôle conformité | Encaissement en production, retraits, émission de cartes |
+| `REJECTED` | Document illisible, expiré ou non conforme | Consultez le motif affiché et soumettez à nouveau les pièces |
+
+<Note>
+  L'examen des dossiers de vérification est généralement effectué sous un délai de **24 à 48 heures ouvrées**. Vous recevrez une notification par email dès la validation définitive de votre compte.
+</Note>
+

@@ -1,0 +1,47 @@
+---
+title: "Espace Développeurs & Clés API"
+description: "Générez vos identifiants d'API, configurez vos webhooks et supervisez vos intégrations depuis le dashboard."
+icon: "code"
+---
+
+L'espace Développeurs dans le tableau de bord permet à vos équipes techniques de connecter vos boutiques e-commerce (WooCommerce, Shopify, Prestashop), applications mobiles (Flutter, React Native) ou backends (Node.js, Laravel, Python, Go) à l'infrastructure BizConnectPay.
+
+---
+
+## 1. Créer une application API
+
+1. Rendez-vous dans **Développeurs** > **Applications**.
+2. Cliquez sur **Créer une application**.
+3. Renseignez :
+   - **Nom de l'application** : Ex: *MonSiteCommerce-Prod* ou *AppMobile-Test*.
+   - **Environnement** :
+     - `SANDBOX` : Pour simuler des paiements et tester vos webhooks avec de faux numéros sans argent réel.
+     - `LIVE` : Pour traiter des transactions réelles en production.
+   - **Permissions (Scopes)** : Cochez uniquement les accès requis (ex: `payments.read`, `payments.write`, `cards.read`).
+4. Validez pour générer vos clés d'API.
+
+---
+
+## 2. Identifiants d'accès
+
+Une fois l'application créée, vous obtenez :
+
+- **Client ID** (ex: `BCP_app_849102948194`) : Identifiant public de votre application.
+- **Client Secret** : Clé privée confidentielle utilisée pour signer vos requêtes d'obtention de jetons JWT.
+
+<Warning>
+  Le **Client Secret** ne sera affiché qu'une seule fois lors de sa création. Copiez-le immédiatement et enregistrez-le dans votre gestionnaire de secrets ou vos variables d'environnement serveur (`.env`).
+</Warning>
+
+---
+
+## 3. Configuration des Webhooks
+
+Les webhooks permettent à BizConnectPay de notifier votre serveur dès qu'une transaction change d'état (paiement réussi, échec, virement complété) :
+
+1. Cliquez sur **Ajouter un endpoint Webhook**.
+2. Renseignez l'**URL de destination** (doit être accessible en HTTPS, ex: `https://api.monsite.com/webhooks/bizconnectpay`).
+3. Sélectionnez les événements à recevoir (ex: `payment.successful`, `payout.failed`).
+4. Une **Clé secrète de signature (Webhook Secret)** vous est attribuée pour valider l'en-tête `X-BizConnectPay-Signature` (HMAC-SHA256) sur votre serveur.
+5. Utilisez le bouton **Envoyer un événement de test** pour tester votre endpoint en conditions réelles.
+

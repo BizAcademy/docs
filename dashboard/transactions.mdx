@@ -1,0 +1,63 @@
+---
+title: "Historique & Gestion des Transactions"
+description: "Suivez, analysez et exportez l'ensemble de vos flux financiers avec une traçabilité complète."
+icon: "receipt"
+---
+
+L'écran **Transactions** offre un journal d'audit exhaustif et immuable de chaque mouvement financier réalisé sur votre compte marchand.
+
+---
+
+## Types de transactions
+
+Chaque écriture financière est catégorisée par type d'opération :
+
+- `COLLECTION` : Paiement entrant réglé par un client (via lien de paiement, checkout API ou intégration boutique).
+- `PAYOUT` : Décaissement sortant vers un compte Mobile Money ou un compte bancaire.
+- `REFUND` : Remboursement total ou partiel octroyé à un client.
+- `TRANSFER` : Virement interne entre portefeuilles de devises différentes.
+- `CARD_FUNDING` : Approvisionnement d'une carte virtuelle depuis votre solde principal.
+- `NOTIFICATION_PLAN_SUBSCRIPTION` : Souscription ou renouvellement automatique d'un forfait de notifications (référence sous le format `SUB-XXXXXXXX`).
+
+---
+
+## Statuts d'une transaction
+
+| Statut | Description |
+| :--- | :--- |
+| `PENDING` | Opération initiée, en attente de validation par le payeur sur son mobile ou sa banque. |
+| `PROCESSING` | Transaction prise en charge par le switch opérateur télécom ou le réseau bancaire. |
+| `SUCCESSFUL` | Transaction confirmée avec succès ; les fonds sont immédiatement disponibles. |
+| `FAILED` | Transaction rejetée (solde insuffisant du client, rejet opérateur ou délai USSD expiré). |
+| `EXPIRED` | Le client n'a pas répondu au prompt de confirmation dans le délai alloué (typiquement 5 à 15 minutes). |
+
+---
+
+## Recherche avancée et filtres
+
+Pour faciliter vos rapprochements comptables, vous disposez d'un moteur de filtrage multicritères :
+
+- **Période** : Aujourd'hui, 7 derniers jours, 30 derniers jours, mois en cours ou dates personnalisées.
+- **Statut** : Visualisez uniquement les succès, les échecs ou les opérations en attente.
+- **Type d'opération** : Isolez les collectes, les retraits ou les souscriptions.
+- **Opérateur / Méthode** : MTN MoMo, Orange Money, Carte Visa, Mastercard.
+- **Référence & ID de corrélation** : Retrouvez instantanément une transaction grâce à son identifiant unique, son `transaction_id` ou sa référence externe.
+
+---
+
+## Détail et reçu de transaction
+
+En cliquant sur n'importe quelle ligne de la liste des transactions, un panneau latéral détaille :
+- L'horodatage exact à la seconde près.
+- Le montant brut payé par le client et les frais de passerelle déduits.
+- Le montant net crédité sur votre portefeuille.
+- Les métadonnées client (numéro masqué, adresse email, adresse IP).
+- L'identifiant de corrélation (`correlation_id`) indispensable pour les demandes d'assistance au support technique.
+- Un bouton d'impression ou de téléchargement du reçu officiel au format PDF.
+
+---
+
+## Export des rapports
+
+Vous pouvez exporter votre historique au format **CSV** ou **Excel (XLSX)** pour intégration directe dans votre logiciel de comptabilité (Sage, Odoo, QuickBooks, Excel).
+

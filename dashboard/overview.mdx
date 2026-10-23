@@ -1,0 +1,64 @@
+---
+title: "Vue d'ensemble du Dashboard"
+description: "Découvrez l'interface du tableau de bord marchand BizConnectPay, son architecture et ses indicateurs clés."
+icon: "gauge"
+---
+
+Le tableau de bord marchand BizConnectPay (`https://bpanel.bizconnectpay.com`) constitue le centre névralgique de votre activité commerciale et financière. Il regroupe la gestion de vos portefeuilles multi-devises, le suivi en direct de vos paiements, l'émission de cartes virtuelles, et la configuration de vos intégrations API.
+
+<CardGroup cols={2}>
+  <Card title="Gestion des Soldes" icon="wallet" href="/dashboard/wallets">
+    Consultez vos soldes disponibles en XAF, XOF, USD et EUR, et gérez vos rechargements et retraits.
+  </Card>
+  <Card title="Liens de Paiement" icon="link" href="/dashboard/payment-links">
+    Générez des liens de paiement instantanés avec page de paiement bilingue pour vos clients.
+  </Card>
+  <Card title="Cartes Virtuelles" icon="credit-card" href="/dashboard/cards">
+    Émettez et gérez vos cartes Visa et Mastercard avec plafonds configurables.
+  </Card>
+  <Card title="Notifications & WhatsApp" icon="message" href="/dashboard/notifications">
+    Activez les alertes par SMS et connectez votre WhatsApp pour vos reçus automatisés et la 2FA.
+  </Card>
+</CardGroup>
+
+---
+
+## Indicateurs clés et statistiques
+
+Dès votre connexion, l'écran d'accueil synthétise vos performances financières en temps réel :
+
+- **Solde total et disponible** : Visualisation instantanée de votre trésorerie ventilée par devise principale (XAF / XOF).
+- **Volume collecté** : Montant brut des paiements reçus sur la période sélectionnée (jour, semaine, mois ou période personnalisée).
+- **Taux de succès** : Pourcentage de transactions complétées avec succès par rapport au volume total d'initiations.
+- **Décaissements (Payouts)** : Cumul des fonds transférés vers vos comptes Mobile Money ou bancaires.
+- **Courbe d'activité** : Graphique interactif représentant l'évolution chronologique de vos encaissements et décaissements.
+
+<Tip>
+  Vous pouvez filtrer toutes les métriques de la page d'accueil par devise, marché géographique ou intervalle de dates pour une analyse comptable précise.
+</Tip>
+
+---
+
+## Navigation et organisation
+
+Le menu latéral du tableau de bord est organisé en pôles thématiques pour un accès rapide :
+
+1. **Tableau de bord (`/`)** : Synthèse globale et actions rapides (créer un lien, recharger son solde).
+2. **Portefeuilles (`/wallets`)** : Soldes par devise, approvisionnements et demandes de décaissement.
+3. **Transactions (`/transactions`)** : Journal auditable de tous les flux entrants et sortants.
+4. **Liens de paiement (`/liens-de-paiement`)** : Catalogue de vos liens actifs, archivés et statistiques de conversion.
+5. **Cartes virtuelles (`/cards`)** : Gestion des porteurs et des cartes bancaires virtuelles.
+6. **Notifications (`/notifications`)** : Forfaits de notification, statut WhatsApp et connexion de session.
+7. **Vérification (`/verification`)** : Statut de conformité KYC / KYB et dépôt des pièces justificatives.
+8. **Paramètres (`/settings`)** : Double authentification (2FA), clés d'API, webhooks, simulateur de frais et profil entreprise.
+
+---
+
+## Sécurité de la session
+
+Pour protéger vos avoirs financiers contre les accès non autorisés en cas de terminal laissé sans surveillance :
+
+- **Expiration automatique** : Les jetons d'accès de session expirent automatiquement au bout de **25 minutes**.
+- **Renouvellement transparent** : Tant que vous interagissez activement avec l'interface, votre session est rafraîchie en arrière-plan sans interrompre votre travail.
+- **Déconnexion sécurisée** : Si une inactivité prolongée dépasse la durée de vie du jeton de rafraîchissement, vous êtes invité à vous ré-authentifier pour des raisons de conformité bancaire.
+

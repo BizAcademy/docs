@@ -29,35 +29,6 @@
         ]
       },
       {
-        "tab": "Dashboard Docs",
-        "groups": [
-          {
-            "group": "Prise en main",
-            "pages": [
-              "dashboard/overview",
-              "dashboard/verification"
-            ]
-          },
-          {
-            "group": "Opérations financières",
-            "pages": [
-              "dashboard/wallets",
-              "dashboard/transactions",
-              "dashboard/payment-links",
-              "dashboard/cards"
-            ]
-          },
-          {
-            "group": "Canaux & Paramètres",
-            "pages": [
-              "dashboard/notifications",
-              "dashboard/security-settings",
-              "dashboard/developer-access"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "API Reference",
         "groups": [
           {
@@ -106,6 +77,35 @@
               "api-reference/notifications/subscribe",
               "api-reference/notifications/whatsapp-connect",
               "api-reference/notifications/whatsapp-status"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Dashboard Docs",
+        "groups": [
+          {
+            "group": "Prise en main",
+            "pages": [
+              "dashboard/overview",
+              "dashboard/verification"
+            ]
+          },
+          {
+            "group": "Opérations financières",
+            "pages": [
+              "dashboard/wallets",
+              "dashboard/transactions",
+              "dashboard/payment-links",
+              "dashboard/cards"
+            ]
+          },
+          {
+            "group": "Canaux & Paramètres",
+            "pages": [
+              "dashboard/notifications",
+              "dashboard/security-settings",
+              "dashboard/developer-access"
             ]
           }
         ]

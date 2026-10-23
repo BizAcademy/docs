@@ -8,7 +8,7 @@ Envoyez une clé `Idempotency-Key` stable pour la même opération métier. Une 
 
 Consultez `GET /services` avant l'intégration. Si la méthode choisie indique `otp_required: true`, recueillez le code à usage unique et envoyez-le dans `payer.otp_code`. La valeur peut être omise pour les méthodes qui ne l'exigent pas. Les codes ne sont transmis qu'au fournisseur dont la configuration les attend.
 
-Une méthode telle que Wave peut renvoyer `redirect_url` dans la réponse. Redirigez le payeur vers cette URL pour qu'il termine l'autorisation. La réponse inclut `provider_reference` quand le fournisseur a déjà accepté la demande; cette référence est utile pour rapprocher le paiement.
+Certaines méthodes peuvent renvoyer `redirect_url` dans la réponse. Redirigez le payeur vers cette URL pour qu'il termine l'autorisation. La réponse inclut `provider_reference` lorsque l'itinéraire de paiement a déjà accepté la demande; cette référence est utile pour rapprocher le paiement.
 
 <RequestExample>
 ```bash cURL

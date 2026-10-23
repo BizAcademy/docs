@@ -4,7 +4,13 @@ description: "Récupérez les pays, devises, opérations et moyens de paiement d
 openapi: "openapi.json GET /services"
 ---
 
-Le catalogue dépend de l'environnement de l'application et de la disponibilité des fournisseurs.
+Le catalogue dépend de l'environnement de l'application et de la disponibilité des fournisseurs. Il regroupe les méthodes identiques même si plusieurs fournisseurs peuvent les traiter. Il ne renvoie pas d'objet fournisseur.
+
+`otp_required` vaut `true` lorsqu'au moins un itinéraire actif de cette méthode peut exiger un code OTP. Utilisez cette indication pour afficher un champ OTP. Le code est transmis au fournisseur qui l'exige; les autres fournisseurs ne reçoivent pas de pré-code PawaPay par défaut.
+
+PawaPay expose son mode d'autorisation et son invite PIN via son catalogue de configuration active. `PROVIDER_AUTH` signifie que le client autorise le paiement auprès de son opérateur; une invite PIN manuelle n'est pas un champ OTP à envoyer dans l'API. `PRE_AUTH` nécessite un pré-code et est indiqué comme OTP requis. AfribaPAY fournit le champ `otp_required` pour chaque opérateur et chaque pays.
+
+Lors de la vérification du catalogue LIVE le 23 octobre 2026, PawaPay indiquait `PROVIDER_AUTH` pour tous les dépôts renvoyés, sans méthode `PRE_AUTH`. AfribaPAY signalait un OTP obligatoire pour Orange au Burkina Faso (`BF`) et au Sénégal (`SN`). Les catalogues peuvent changer; utilisez toujours `otp_required` renvoyé par votre propre appel à `/services` plutôt que de coder ces exemples en dur. Consultez la [configuration active PawaPay](https://docs.pawapay.io/v2/api-reference/toolkit/active-configuration) et le [catalogue AfribaPAY](https://docs.afribapay.com/) pour le format d'origine des fournisseurs.
 
 <RequestExample>
 ```bash cURL
@@ -33,6 +39,7 @@ curl --request GET \
         },
         "operation": "COLLECTION",
         "payment_method": "mtn_momo",
+        "otp_required": false,
         "available": true
       }
     ]

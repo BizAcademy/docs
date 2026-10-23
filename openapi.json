@@ -313,7 +313,14 @@
           { "name": "code", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 20 } }
         ],
         "responses": {
-          "200": { "$ref": "#/components/responses/Success" },
+          "200": {
+            "description": "Données du checkout et moyens de paiement disponibles",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PublicPaymentLinkCheckoutResponse" }
+              }
+            }
+          },
           "404": { "$ref": "#/components/responses/NotFound" }
         }
       },
@@ -684,7 +691,11 @@
             "required": ["phone_number"],
             "properties": {
               "phone_number": { "type": "string", "maxLength": 32 },
-              "otp_code": { "type": ["string", "null"], "maxLength": 32 },
+              "otp_code": {
+                "type": ["string", "null"],
+                "maxLength": 32,
+                "description": "Optional customer OTP. Send it when the selected service reports otp_required=true."
+              },
               "lang": { "type": "string", "enum": ["en", "fr"] }
             }
           },
@@ -756,9 +767,52 @@
         "required": ["email", "phone_number", "payment_method"],
         "additionalProperties": false,
         "properties": {
+          "amount": { "type": ["string", "number", "null"], "pattern": "^[0-9]+(\\.[0-9]{1,4})?$", "description": "Montant requis uniquement si le lien autorise un montant personnalisé." },
+          "country": { "type": ["string", "null"], "minLength": 2, "maxLength": 3, "description": "Pays du payeur si le checkout autorise le choix du pays." },
+          "currency": { "type": ["string", "null"], "minLength": 3, "maxLength": 3 },
           "email": { "type": "string", "format": "email", "maxLength": 255 },
+          "lang": { "type": ["string", "null"], "enum": ["en", "fr", null] },
+          "otp_code": { "type": ["string", "null"], "maxLength": 32, "description": "Code à usage unique, à fournir lorsque la méthode sélectionnée indique otp_required=true." },
           "phone_number": { "type": "string", "pattern": "^\\+[1-9][0-9]{7,14}$", "examples": ["+237690000000"] },
           "payment_method": { "type": "string", "maxLength": 60, "examples": ["MOBILE_MONEY"] }
+        }
+      },
+      "PublicPaymentLinkCheckoutResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "const": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "payment_methods": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/CheckoutPaymentMethod" }
+              },
+              "countries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "string" },
+                    "currency": { "type": "string" },
+                    "operators": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/CheckoutPaymentMethod" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        }
+      },
+      "CheckoutPaymentMethod": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "label": { "type": "string" },
+          "otp_required": { "type": "boolean" }
         }
       },
       "VirtualCardUserRequest": {
@@ -820,6 +874,10 @@
                     "currency": { "type": "object", "additionalProperties": true },
                     "operation": { "type": "string" },
                     "payment_method": { "type": "string" },
+                    "otp_required": {
+                      "type": "boolean",
+                      "description": "True when at least one active provider route for this method may require a customer OTP."
+                    },
                     "available": { "type": "boolean" }
                   }
                 }

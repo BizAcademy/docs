@@ -6,6 +6,10 @@ openapi: "openapi.json POST /payments"
 
 Envoyez une clé `Idempotency-Key` stable pour la même opération métier. Une nouvelle clé crée une nouvelle opération.
 
+Consultez `GET /services` avant l'intégration. Si la méthode choisie indique `otp_required: true`, recueillez le code à usage unique et envoyez-le dans `payer.otp_code`. La valeur peut être omise pour les méthodes qui ne l'exigent pas. Les codes ne sont transmis qu'au fournisseur dont la configuration les attend.
+
+Une méthode telle que Wave peut renvoyer `redirect_url` dans la réponse. Redirigez le payeur vers cette URL pour qu'il termine l'autorisation. La réponse inclut `provider_reference` quand le fournisseur a déjà accepté la demande; cette référence est utile pour rapprocher le paiement.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \
@@ -69,6 +73,8 @@ curl --request POST \
       "client_reference": "CMD-2026-9481"
     },
     "status": "PENDING",
+    "provider_reference": "PIM261020123100001",
+    "redirect_url": null,
     "expires_at": null,
     "created_at": "2026-10-20T12:30:00.000000Z",
     "updated_at": "2026-10-20T12:30:00.000000Z"

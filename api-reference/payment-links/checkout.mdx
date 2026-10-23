@@ -6,6 +6,8 @@ openapi: "openapi.json POST /payment-links/{code}/checkout"
 
 La page hébergée est disponible à l’adresse `https://pay.bizconnectpay.com/link/{code}`. Elle récupère les moyens de paiement disponibles sans exposer le fournisseur utilisé.
 
+Chaque méthode renvoyée par `GET /payment-links/{code}/checkout` inclut `otp_required`. Pour un pays sélectionné, utilisez le même indicateur sur son entrée `operators`. Affichez un champ de code uniquement quand sa valeur est `true`, puis envoyez le code dans `otp_code` au POST de checkout. Wave peut renvoyer une URL de redirection dans la réponse.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \
@@ -15,7 +17,9 @@ curl --request POST \
   --data '{
     "email": "payer@example.com",
     "phone_number": "+237690000000",
-    "payment_method": "MOBILE_MONEY"
+    "payment_method": "MOBILE_MONEY",
+    "otp_code": "123456",
+    "lang": "fr"
   }'
 ```
 
@@ -23,7 +27,9 @@ curl --request POST \
 {
   "email": "payer@example.com",
   "phone_number": "+237690000000",
-  "payment_method": "MOBILE_MONEY"
+  "payment_method": "MOBILE_MONEY",
+  "otp_code": "123456",
+  "lang": "fr"
 }
 ```
 </RequestExample>

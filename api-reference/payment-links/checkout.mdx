@@ -49,3 +49,43 @@ curl --request POST \
 }
 ```
 </ResponseExample>
+
+## Suivre le paiement et rediriger le payeur
+
+La réponse `202` signifie que la demande a été acceptée pour traitement, pas que le paiement est déjà réussi. Conservez `data.payment_reference`, puis interrogez périodiquement le statut public jusqu’à obtenir `COMPLETED` ou `FAILED` :
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.bizconnectpay.com/api/v1/payment-links/0PKOW1IM14/checkout/status/BCP-PI-01JACC0N'
+```
+
+La réponse de statut inclut les deux URL configurées sur le lien. Elles peuvent être `null` si le marchand n’en a pas défini :
+
+```json 200 OK — paiement terminé
+{
+  "success": true,
+  "data": {
+    "status": "COMPLETED",
+    "reference": "BCP-PI-01JACC0N",
+    "provider_reference": "provider-transaction-id",
+    "amount": "100.0000",
+    "currency": "XAF",
+    "payment_method": "mtn",
+    "phone_number": "+237690000000",
+    "success_url": "https://merchant.example/checkout/success",
+    "failure_url": "https://merchant.example/checkout/failed"
+  },
+  "meta": {
+    "correlation_id": "b39b6c1d-d682-4f61-8839-93b8a9bd76e7"
+  }
+}
+```
+
+Règles côté client :
+
+- `PROCESSING` : continuer à afficher l’attente et à vérifier le statut ; ne rediriger vers aucune URL finale.
+- `COMPLETED` : rediriger le navigateur du payeur vers `success_url`, si elle est renseignée.
+- `FAILED` : rediriger le navigateur du payeur vers `failure_url`, si elle est renseignée.
+- Sans URL correspondante, afficher à la place un écran de résultat local adapté au statut.
+
+Le polling doit s’arrêter dès que le statut est final. Les URL de succès/échec sont des redirections du navigateur, pas des webhooks. Pour recevoir les événements serveur-à-serveur `payment.completed` et `payment.failed`, configurez une souscription webhook pour l’application rattachée au lien et abonnez-vous aux deux événements.

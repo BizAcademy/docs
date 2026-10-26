@@ -1,10 +1,10 @@
 ---
 title: "Envoyer une notification"
-description: "Transmettez une notification transactionnelle ou marketing par SMS, EMAIL ou WHATSAPP. Scope requis : notifications.write."
+description: "Envoyez une notification par e-mail, SMS et/ou WhatsApp via un endpoint unique. Scope requis : notifications.write."
 openapi: "openapi.json POST /notifications/messages"
 ---
 
-L'envoi de notifications requiert un abonnement actif pour le compte marchand (`PRO` ou `ENTERPRISE` pour le canal WhatsApp).
+L'envoi utilise un endpoint unique. Passez `channels` pour diffuser dans une seule requête vers plusieurs canaux et `recipients` pour fournir une adresse distincte par canal. Un abonnement actif et les quotas du forfait s'appliquent à chaque canal.
 
 ### Protection anti-bannissement WhatsApp
 Les envois WhatsApp s'appuient sur notre passerelle Baileys intégrée et appliquent des sécurités strictes :
@@ -20,8 +20,13 @@ curl --request POST \
   --header 'Authorization: Bearer <application_access_token>' \
   --header 'Content-Type: application/json' \
   --data '{
-    "channel": "WHATSAPP",
-    "recipient_address": "+237699001122",
+    "channels": ["EMAIL", "SMS", "WHATSAPP"],
+    "recipients": {
+      "EMAIL": "client@example.com",
+      "SMS": "+237699001122",
+      "WHATSAPP": "+237699001122"
+    },
+    "subject": "Paiement confirmé",
     "message": "Bonjour ! Votre paiement pour la commande #1042 a bien été confirmé."
   }'
 ```
@@ -32,11 +37,12 @@ curl --request POST \
 {
   "success": true,
   "data": {
-    "message_id": "b304c0ec-6949-4171-8bc9-57ef9a9870be",
-    "channel": "WHATSAPP",
-    "recipient_address": "+237699001122",
-    "status": "queued",
-    "created_at": "2026-10-22T17:00:00.000000Z"
+    "status": "sent",
+    "messages": [
+      {"id": "b304c0ec-6949-4171-8bc9-57ef9a9870be", "channel": "EMAIL", "recipient_address": "client@example.com", "status": "sent", "provider": "SMTP"},
+      {"id": "2c4d0981-297f-41c6-9ad7-f2c8715c18d6", "channel": "SMS", "recipient_address": "+237699001122", "status": "sent", "provider": "HTTP_SMS"},
+      {"id": "cd297fe7-066b-4626-bf10-304b93e2c52b", "channel": "WHATSAPP", "recipient_address": "+237699001122", "status": "sent", "provider": "BAILEYS_WHATSAPP"}
+    ]
   },
   "meta": {
     "correlation_id": "0d207567-9d7a-4221-a537-8ffb64a2f8b5"
@@ -45,3 +51,4 @@ curl --request POST \
 ```
 </ResponseExample>
 
+Chaque canal est livré et journalisé séparément. Si un canal échoue, la réponse `207 Multi-Status` contient le résultat de chacun ; les autres canaux sont tout de même traités. Pour une notification sur un seul canal, utilisez `channel` et `recipient_address` au lieu de `channels` et `recipients`.

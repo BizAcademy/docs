@@ -481,56 +481,11 @@
         }
       }
     },
-    "/notifications/plans": {
-      "get": {
-        "tags": ["Notifications"],
-        "summary": "Consulter les forfaits d'abonnement aux notifications",
-        "description": "Retourne le catalogue des forfaits (BASIC, PRO, ENTERPRISE) avec les canaux autorisés, quotas quotidiens (globaux et WhatsApp) et tarifs.",
-        "operationId": "listNotificationPlans",
-        "security": [],
-        "responses": {
-          "200": { "$ref": "#/components/responses/Success" }
-        }
-      }
-    },
-    "/notifications/subscription": {
-      "get": {
-        "tags": ["Notifications"],
-        "summary": "Consulter l'abonnement actif et la consommation",
-        "description": "Retourne les détails de l'abonnement en cours du compte marchand, l'état de renouvellement automatique et les compteurs d'utilisation quotidienne par canal.",
-        "operationId": "getNotificationSubscription",
-        "responses": {
-          "200": { "$ref": "#/components/responses/Success" },
-          "401": { "$ref": "#/components/responses/Unauthenticated" }
-        }
-      }
-    },
-    "/notifications/subscribe": {
-      "post": {
-        "tags": ["Notifications"],
-        "summary": "Souscrire à un forfait de notifications",
-        "description": "Souscrit au forfait choisi (BASIC, PRO, ENTERPRISE) avec débit direct et sécurisé depuis le portefeuille de l'entreprise (réservation et capture).",
-        "operationId": "subscribeNotificationPlan",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/NotificationSubscribeRequest" }
-            }
-          }
-        },
-        "responses": {
-          "201": { "$ref": "#/components/responses/Created" },
-          "401": { "$ref": "#/components/responses/Unauthenticated" },
-          "422": { "$ref": "#/components/responses/ValidationError" }
-        }
-      }
-    },
     "/notifications/messages": {
       "post": {
         "tags": ["Notifications"],
         "summary": "Envoyer une notification",
-        "description": "Transmet une notification par SMS, EMAIL ou WHATSAPP. Scope requis : `notifications.write`. Requiert un abonnement d'entreprise actif.",
+        "description": "Envoie une notification par e-mail, SMS et/ou WhatsApp via le même endpoint. Utilisez `channels` et `recipients` pour diffuser sur plusieurs canaux en un seul appel. Scope requis : `notifications.write`.",
         "operationId": "sendNotificationMessage",
         "requestBody": {
           "required": true,
@@ -542,30 +497,10 @@
         },
         "responses": {
           "202": { "$ref": "#/components/responses/Accepted" },
+          "207": { "$ref": "#/components/responses/Accepted" },
           "401": { "$ref": "#/components/responses/Unauthenticated" },
           "403": { "$ref": "#/components/responses/Forbidden" },
           "422": { "$ref": "#/components/responses/ValidationError" }
-        }
-      }
-    },
-    "/notifications/messages/{id}": {
-      "get": {
-        "tags": ["Notifications"],
-        "summary": "Consulter l'état d'un message",
-        "description": "Retourne le statut d'acheminement en temps réel d'un message (`queued`, `sent`, `delivered`, `failed`, `opted_out`). Scope requis : `notifications.read`.",
-        "operationId": "getNotificationMessage",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "responses": {
-          "200": { "$ref": "#/components/responses/Success" },
-          "401": { "$ref": "#/components/responses/Unauthenticated" },
-          "404": { "$ref": "#/components/responses/NotFound" }
         }
       }
     },
@@ -887,21 +822,14 @@
           "meta": { "$ref": "#/components/schemas/Meta" }
         }
       },
-      "NotificationSubscribeRequest": {
-        "type": "object",
-        "required": ["plan", "wallet_id"],
-        "properties": {
-          "plan": { "type": "string", "enum": ["BASIC", "PRO", "ENTERPRISE"] },
-          "wallet_id": { "type": "string", "format": "uuid" },
-          "auto_renew": { "type": "boolean", "default": true }
-        }
-      },
       "NotificationMessageRequest": {
         "type": "object",
-        "required": ["channel", "recipient_address", "message"],
+        "required": ["message"],
         "properties": {
-          "channel": { "type": "string", "enum": ["SMS", "EMAIL", "WHATSAPP"] },
-          "recipient_address": { "type": "string", "description": "Numéro de téléphone E.164 (+237...) ou adresse email" },
+          "channel": { "type": "string", "enum": ["SMS", "EMAIL", "WHATSAPP"], "description": "Canal unique (alternative à channels)." },
+          "channels": { "type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": { "type": "string", "enum": ["SMS", "EMAIL", "WHATSAPP"] } },
+          "recipient_address": { "type": "string", "description": "Adresse unique (alternative à recipients)." },
+          "recipients": { "type": "object", "description": "Destinataires par canal, par exemple EMAIL, SMS et WHATSAPP.", "properties": { "EMAIL": { "type": "string", "format": "email" }, "SMS": { "type": "string" }, "WHATSAPP": { "type": "string" } } },
           "message": { "type": "string", "description": "Contenu texte de la notification" },
           "subject": { "type": "string", "description": "Objet de la notification (EMAIL)" }
         }

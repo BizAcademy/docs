@@ -70,11 +70,7 @@
           {
             "group": "Notifications",
             "pages": [
-              "api-reference/notifications/plans",
               "api-reference/notifications/send",
-              "api-reference/notifications/show",
-              "api-reference/notifications/subscription",
-              "api-reference/notifications/subscribe",
               "api-reference/notifications/whatsapp-connect",
               "api-reference/notifications/whatsapp-status"
             ]

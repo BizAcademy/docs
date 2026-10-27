@@ -401,6 +401,7 @@
       "post": {
         "tags": ["Cartes virtuelles"],
         "summary": "Émettre une carte virtuelle",
+        "description": "Un compte marchand peut créer au maximum 3 cartes virtuelles. L'émission au-delà de cette limite est refusée avec 422.",
         "operationId": "createVirtualCard",
         "requestBody": {
           "required": true,

@@ -6,6 +6,8 @@ openapi: "openapi.json GET /cards"
 
 Cette liste ne contient ni PAN, ni CVV, ni code PIN. Utilisez le détail sensible uniquement au moment où l'utilisateur en a besoin.
 
+Pour les comptes marchands, la réponse inclut dans `meta.card_creation_limit` le nombre maximum de cartes (`maximum: 3`) et le nombre déjà créé (`used`). Cette limite est appliquée par le serveur à toute nouvelle émission.
+
 <RequestExample>
 ```bash cURL
 curl --request GET \

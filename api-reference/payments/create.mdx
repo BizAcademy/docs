@@ -10,6 +10,8 @@ Consultez `GET /services` avant l'intégration. Si la méthode choisie indique `
 
 Certaines méthodes peuvent renvoyer `redirect_url` dans la réponse. Redirigez le payeur vers cette URL pour qu'il termine l'autorisation. La réponse inclut `provider_reference` lorsque l'itinéraire de paiement a déjà accepté la demande; cette référence est utile pour rapprocher le paiement.
 
+Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto). Le catalogue vous indique les méthodes crypto disponibles et les cryptomonnaies acceptées.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \

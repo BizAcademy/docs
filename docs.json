@@ -41,7 +41,7 @@
           },
           {
             "group": "Paiements",
-            "pages": ["api-reference/payments/create", "api-reference/payments/show"]
+            "pages": ["api-reference/payments/create", "api-reference/payments/show", "api-reference/payments/crypto"]
           },
           {
             "group": "Transactions",

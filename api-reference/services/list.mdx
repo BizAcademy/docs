@@ -8,6 +8,8 @@ Le catalogue dépend de l'environnement de l'application et de la disponibilité
 
 `otp_required` vaut `true` lorsqu'au moins un itinéraire actif de cette méthode peut exiger un code à usage unique. Utilisez cette indication pour afficher un champ correspondant. Le code est transmis uniquement à l'itinéraire qui le requiert.
 
+Chaque service inclut aussi `method_type` (`MOBILE_MONEY`, `CRYPTO` ou `OTHER`). Les services crypto peuvent inclure `accepted_coins`. Affichez uniquement les méthodes retournées comme disponibles : l'administration peut désactiver un fournisseur, une capacité ou un itinéraire, et le catalogue reflète alors ce changement.
+
 Les modes d'autorisation varient selon le pays et la méthode. Une demande de validation PIN affichée directement par l'opérateur n'est pas un code OTP à inclure dans l'API. Le catalogue `/services` est la référence pour savoir si l'intégration doit recueillir et transmettre un code.
 
 <RequestExample>
@@ -37,6 +39,7 @@ curl --request GET \
         },
         "operation": "COLLECTION",
         "payment_method": "mtn_momo",
+        "method_type": "MOBILE_MONEY",
         "otp_required": false,
         "available": true
       }

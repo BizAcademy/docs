@@ -616,7 +616,7 @@
       },
       "PaymentIntentRequest": {
         "type": "object",
-        "required": ["country", "amount", "currency", "operation", "payment_method", "payer"],
+        "required": ["country", "amount", "currency", "operation", "payment_method"],
         "properties": {
           "country": { "type": "string", "minLength": 2, "maxLength": 2, "example": "CM" },
           "amount": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" },
@@ -625,9 +625,12 @@
           "payment_method": { "type": "string", "maxLength": 60 },
           "payer": {
             "type": "object",
-            "required": ["phone_number"],
             "properties": {
-              "phone_number": { "type": "string", "maxLength": 32 },
+              "phone_number": { "type": "string", "maxLength": 32, "description": "Required for mobile-money collections; omitted for crypto payment intents." },
+              "email": { "type": "string", "format": "email", "maxLength": 254 },
+              "first_name": { "type": "string", "maxLength": 80 },
+              "last_name": { "type": "string", "maxLength": 80 },
+              "return_url": { "type": "string", "format": "uri", "maxLength": 2048 },
               "otp_code": {
                 "type": ["string", "null"],
                 "maxLength": 32,
@@ -637,7 +640,7 @@
             }
           },
           "description": { "type": ["string", "null"], "maxLength": 1000 },
-          "metadata": { "type": "object", "additionalProperties": true },
+          "metadata": { "type": "object", "additionalProperties": true, "description": "For crypto collections, may include accepted_coins as a list of supported assets." },
           "expires_at": { "type": ["string", "null"], "format": "date-time" }
         }
       },
@@ -651,7 +654,11 @@
           "country": { "type": "string", "minLength": 2, "maxLength": 2 },
           "payment_method": { "type": "string" },
           "destination": { "type": "string" },
-          "metadata": { "type": "object", "additionalProperties": true }
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Crypto payouts may set asset_code, amount_type (fiat or crypto), destination_memo and fee_bearer (merchant or customer)."
+          }
         }
       },
       "RefundRequest": {
@@ -811,6 +818,9 @@
                     "currency": { "type": "object", "additionalProperties": true },
                     "operation": { "type": "string" },
                     "payment_method": { "type": "string" },
+                    "method_type": { "type": "string", "enum": ["MOBILE_MONEY", "CRYPTO", "OTHER"] },
+                    "accepted_coins": { "type": "array", "items": { "type": "string" } },
+                    "crypto_asset_code": { "type": ["string", "null"], "description": "Configured crypto payout asset for the service, when applicable." },
                     "otp_required": {
                       "type": "boolean",
                       "description": "True when at least one active provider route for this method may require a customer OTP."

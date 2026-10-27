@@ -1,0 +1,78 @@
+---
+title: "Paiements et décaissements crypto"
+description: "Créez une demande de paiement crypto ou un décaissement vers une adresse blockchain."
+---
+
+## Disponibilité
+
+Appelez `GET /services` et choisissez une méthode active pour le pays, la devise et l'opération. Les services crypto sont marqués `method_type: "CRYPTO"`. `accepted_coins` liste les actifs disponibles pour les demandes de paiement lorsque la configuration les fournit.
+
+L'administration contrôle la disponibilité à trois niveaux : fournisseur, capacité (pays/devise/opération/méthode) et itinéraire. Une méthode désactivée disparaît du catalogue et les nouvelles demandes correspondantes sont refusées.
+
+Les frais restent configurés côté serveur. Les règles globales et les règles ciblées par pays, devise et méthode s'appliquent avant l'envoi au fournisseur. Ne calculez pas le montant final comme une source de vérité côté client.
+
+## Demander un paiement crypto
+
+Pour une application, créez une collecte avec `POST /payments`. Dans le tableau de bord Marchand, le même parcours utilise `POST /payment-intents`. Utilisez la méthode crypto renvoyée par le catalogue. Pour la configuration courante, le code de routage de l'intention est `izipay`.
+
+```bash
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payments \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: order-4821-crypto' \
+  --data '{
+    "amount": "25000",
+    "currency": "XOF",
+    "country": "SN",
+    "operation": "DEPOSIT",
+    "payment_method": "izipay",
+    "payer": {
+      "email": "client@example.com",
+      "first_name": "Awa",
+      "last_name": "Diallo",
+      "return_url": "https://boutique.example.com/commande/4821/merci",
+      "lang": "fr"
+    },
+    "metadata": {
+      "accepted_coins": ["USDT", "BTC.BEP20"],
+      "orderId": "4821"
+    }
+  }'
+```
+
+`payer` ne requiert pas de numéro de téléphone pour cette méthode. L'API renvoie une `redirect_url` si le fournisseur a créé un lien de paiement. Redirigez le payeur vers ce lien. Utilisez `GET /payment-intents/{id}` ou les webhooks BizConnectPay pour suivre le statut final. Conservez `provider_reference` pour le rapprochement.
+
+## Effectuer un décaissement crypto
+
+Utilisez `POST /payouts` pour une application ou `POST /withdrawals` dans le tableau de bord Marchand. L'opération débite un wallet actif. `payment_method` doit correspondre à un service crypto de décaissement renvoyé par le catalogue. `destination` contient l'adresse blockchain.
+
+```bash
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payouts \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: payout-4821-crypto' \
+  --data '{
+    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+    "amount": "125.50",
+    "currency": "XOF",
+    "country": "SN",
+    "payment_method": "USDT.TRC20",
+    "destination": "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",
+    "metadata": {
+      "asset_code": "USDT.TRC20",
+      "amount_type": "crypto",
+      "destination_memo": "1234567890",
+      "fee_bearer": "merchant"
+    }
+  }'
+```
+
+`amount_type` accepte `fiat` ou `crypto`. Pour `fiat`, `amount` est exprimé dans `currency`. Pour `crypto`, il est exprimé dans l'actif demandé. `asset_code` doit être autorisé par l'itinéraire; ne supposez pas qu'un actif est disponible parce qu'il apparaît dans un exemple. `destination_memo` est facultatif et dépend du réseau. `fee_bearer` accepte `merchant` ou `customer` lorsque l'itinéraire le permet.
+
+Le serveur vérifie le solde, applique les frais configurés, réserve les fonds et utilise une clé d'idempotence pour éviter un double paiement. Enregistrez l'identifiant BizConnectPay et `provider_reference`; ne soumettez pas directement une seconde demande si le résultat initial est incertain.
+
+## Suivre les statuts
+
+Un statut intermédiaire ne signifie pas que le transfert a réussi. Traitez uniquement les statuts finaux documentés par l'API comme définitifs. Votre webhook BizConnectPay contient l'événement et l'objet de transaction normalisé; consultez [Webhooks](../../webhooks) pour la signature, les nouvelles tentatives et la validation.

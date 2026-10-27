@@ -6,6 +6,8 @@ openapi: "openapi.json POST /payouts"
 
 La clé `Idempotency-Key` empêche un double décaissement lors d'une nouvelle tentative.
 
+Pour un décaissement crypto, utilisez une méthode crypto active retournée par `GET /services` et envoyez l'adresse blockchain dans `destination`. Consultez [Paiements et décaissements crypto](../payments/crypto) pour les champs supplémentaires.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \

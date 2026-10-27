@@ -780,8 +780,8 @@
           "idempotency_key": { "type": "string", "maxLength": 100 },
           "debit_currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Préférence facultative. Le serveur sélectionne automatiquement un portefeuille actif suffisamment approvisionné." },
           "initial_balance": { "type": ["number", "null"], "minimum": 0 },
-          "category": { "type": ["string", "null"], "enum": ["PERSONAL", "BUSINESS", null] },
-          "grade": { "type": ["string", "null"], "enum": ["STANDARD", "PREMIUM", null] }
+          "category": { "type": ["string", "null"], "enum": ["PERSONAL", "PROFESSIONAL", null], "description": "Catégorie du porteur. PROFESSIONAL est transmise au fournisseur comme catégorie professionnelle/entreprise." },
+          "grade": { "type": ["string", "null"], "enum": ["PREMIUM", null], "description": "PREMIUM est actuellement disponible; BASIC n'est pas disponible." }
         }
       },
       "VirtualCardOperationRequest": {

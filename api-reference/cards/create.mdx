@@ -4,7 +4,7 @@ description: "Émettez une carte USD et débitez les frais dans la devise du por
 openapi: "openapi.json POST /cards"
 ---
 
-`idempotency_key` identifie durablement l'émission. Réutilisez la même valeur lors d'une nouvelle tentative. N'envoyez pas `wallet_id` : le serveur choisit le portefeuille actif éligible et suffisamment approvisionné. `debit_currency` est une préférence facultative; le serveur peut sélectionner un autre portefeuille actif si le solde est insuffisant dans cette devise. Le contrôle du solde et le débit sont effectués côté serveur; le devis préalable ne réserve pas de fonds.
+`idempotency_key` identifie durablement l'émission. Réutilisez la même valeur lors d'une nouvelle tentative. Les catégories API sont `PERSONAL` et `PROFESSIONAL`. `PREMIUM` est le seul grade disponible; le grade `BASIC` n'est pas disponible actuellement. N'envoyez pas `wallet_id` : le serveur choisit le portefeuille actif éligible et suffisamment approvisionné. `debit_currency` est une préférence facultative; le serveur peut sélectionner un autre portefeuille actif si le solde est insuffisant dans cette devise. Le contrôle du solde et le débit sont effectués côté serveur; le devis préalable ne réserve pas de fonds.
 
 <RequestExample>
 ```bash cURL
@@ -17,7 +17,7 @@ curl --request POST \
     "idempotency_key": "card-issuance-2026-001",
     "initial_balance": "10.00",
     "category": "PERSONAL",
-    "grade": "STANDARD"
+    "grade": "PREMIUM"
   }'
 ```
 
@@ -27,7 +27,7 @@ curl --request POST \
   "idempotency_key": "card-issuance-2026-001",
   "initial_balance": "10.00",
   "category": "PERSONAL",
-  "grade": "STANDARD"
+  "grade": "PREMIUM"
 }
 ```
 </RequestExample>

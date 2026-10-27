@@ -7,6 +7,8 @@ description: "Créez une demande de paiement crypto ou un décaissement vers une
 
 Appelez `GET /services` et choisissez une méthode active pour le pays, la devise et l'opération. Les services crypto sont marqués `method_type: "CRYPTO"`. `accepted_coins` liste les actifs disponibles pour les demandes de paiement lorsque la configuration les fournit.
 
+Les dépôts et payouts crypto utilisent un wallet USD actif. Le tableau de bord ne propose les méthodes crypto qu'après la sélection d'un wallet USD. Le serveur vérifie aussi la devise, le propriétaire et le statut du wallet avant d'accepter un payout.
+
 L'administration contrôle la disponibilité à trois niveaux : fournisseur, capacité (pays/devise/opération/méthode) et itinéraire. Une méthode désactivée disparaît du catalogue et les nouvelles demandes correspondantes sont refusées.
 
 Les frais restent configurés côté serveur. Les règles globales et les règles ciblées par pays, devise et méthode s'appliquent avant l'envoi au fournisseur. Ne calculez pas le montant final comme une source de vérité côté client.
@@ -23,7 +25,7 @@ curl --request POST \
   --header 'Idempotency-Key: order-4821-crypto' \
   --data '{
     "amount": "25000",
-    "currency": "XOF",
+    "currency": "USD",
     "country": "SN",
     "operation": "DEPOSIT",
     "payment_method": "izipay",
@@ -56,7 +58,7 @@ curl --request POST \
   --data '{
     "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
     "amount": "125.50",
-    "currency": "XOF",
+    "currency": "USD",
     "country": "SN",
     "payment_method": "USDT.TRC20",
     "destination": "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",

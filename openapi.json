@@ -620,7 +620,7 @@
         "properties": {
           "country": { "type": "string", "minLength": 2, "maxLength": 2, "example": "CM" },
           "amount": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" },
-          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "XAF" },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "XAF", "description": "Use USD for crypto deposits; the account must have an active USD wallet." },
           "operation": { "type": "string", "enum": ["COLLECTION", "DEPOSIT", "WITHDRAWAL", "REFUND", "TRANSFER", "PAYOUT", "REVERSAL", "FX_CONVERSION"] },
           "payment_method": { "type": "string", "maxLength": 60 },
           "payer": {
@@ -650,7 +650,7 @@
         "properties": {
           "wallet_id": { "type": "string", "format": "uuid" },
           "amount": { "type": "number", "exclusiveMinimum": 0 },
-          "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Use USD for crypto payouts and provide an active USD wallet owned by the authenticated account." },
           "country": { "type": "string", "minLength": 2, "maxLength": 2 },
           "payment_method": { "type": "string" },
           "destination": { "type": "string" },

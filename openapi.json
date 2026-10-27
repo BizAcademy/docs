@@ -425,9 +425,10 @@
           {
             "name": "debit_currency",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": { "type": "string", "minLength": 3, "maxLength": 3 },
-            "example": "XAF"
+            "description": "Devise préférée pour le débit. Facultative; le serveur peut choisir un autre portefeuille actif suffisamment approvisionné.",
+            "example": "CDF"
           }
         ],
         "responses": { "200": { "$ref": "#/components/responses/Success" } }
@@ -457,7 +458,7 @@
       "post": {
         "tags": ["Cartes virtuelles"],
         "summary": "Gérer une carte virtuelle",
-        "description": "Alimente, retire, active, désactive ou termine une carte.",
+        "description": "Alimente, retire, active, désactive ou termine une carte. L'action withdraw exige une idempotency_key; ses frais configurés (initialement 2 USD) sont convertis selon le taux actif.",
         "operationId": "operateVirtualCard",
         "parameters": [
           {
@@ -773,12 +774,11 @@
       },
       "VirtualCardRequest": {
         "type": "object",
-        "required": ["customer_id", "wallet_id", "idempotency_key", "debit_currency"],
+        "required": ["customer_id", "idempotency_key"],
         "properties": {
           "customer_id": { "type": "string", "format": "uuid" },
-          "wallet_id": { "type": "string", "format": "uuid" },
           "idempotency_key": { "type": "string", "maxLength": 100 },
-          "debit_currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+          "debit_currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Préférence facultative. Le serveur sélectionne automatiquement un portefeuille actif suffisamment approvisionné." },
           "initial_balance": { "type": ["number", "null"], "minimum": 0 },
           "category": { "type": ["string", "null"], "enum": ["PERSONAL", "BUSINESS", null] },
           "grade": { "type": ["string", "null"], "enum": ["STANDARD", "PREMIUM", null] }
@@ -789,7 +789,8 @@
         "required": ["action"],
         "properties": {
           "action": { "type": "string", "enum": ["topup", "withdraw", "enabled", "disabled", "terminate"] },
-          "amount": { "type": ["number", "null"], "exclusiveMinimum": 0, "description": "Obligatoire pour topup et withdraw." }
+          "amount": { "type": ["number", "null"], "exclusiveMinimum": 0, "description": "Obligatoire pour topup et withdraw." },
+          "idempotency_key": { "type": "string", "maxLength": 100, "description": "Obligatoire pour withdraw; réutilisez la même clé lors d'une nouvelle tentative de la même opération." }
         }
       },
       "ServiceCatalogResponse": {

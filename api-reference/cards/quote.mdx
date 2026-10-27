@@ -4,12 +4,14 @@ description: "Calculez les frais et le débit du portefeuille avant d'émettre u
 openapi: "openapi.json GET /cards/quote"
 ---
 
-Le taux de change et les frais sont configurés par BizConnectPay. Demandez un nouveau devis avant chaque émission.
+Le devis sélectionne côté serveur un portefeuille actif du compte marchand disposant d'un solde disponible suffisant. Vous pouvez fournir `debit_currency` comme préférence; ce paramètre est facultatif et ne garantit pas le choix de cette devise si le portefeuille correspondant est insuffisamment approvisionné.
+
+Le montant affiché est calculé avec le tarif configuré pour le marchand, puis converti depuis USD avec le taux de référence configuré (`1 USD = 690 XAF`) et le taux de change actif entre XAF et la devise du portefeuille. Le serveur applique la précision de la devise. Les frais et taux effectifs sont ceux retournés dans le devis.
 
 <RequestExample>
 ```bash cURL
 curl --request GET \
-  --url 'https://api.bizconnectpay.com/api/v1/cards/quote?debit_currency=XAF' \
+  --url 'https://api.bizconnectpay.com/api/v1/cards/quote' \
   --header 'Accept: application/json' \
   --header 'Authorization: Bearer <access_token>'
 ```
@@ -22,17 +24,21 @@ curl --request GET \
   "data": {
     "card_sequence": 1,
     "card_currency": "USD",
-    "card_creation_fee_usd": "3.30",
-    "individual_policy_fee_xaf": "2000.00",
+    "card_creation_fee_usd": "3.00",
     "exchange_rate": {
       "source_currency": "USD",
       "target_currency": "XAF",
-      "rate": "606.06",
-      "display": "1 USD = 606.06 XAF"
+      "rate": "690",
+      "display": "1 USD = 690 XAF"
     },
     "wallet_debit": {
-      "amount": "2000.00",
+      "amount": "2070",
       "currency": "XAF"
+    },
+    "selected_wallet": {
+      "id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
+      "currency": "XAF",
+      "available_balance": "5000"
     }
   },
   "meta": {
@@ -41,3 +47,5 @@ curl --request GET \
 }
 ```
 </ResponseExample>
+
+Pour privilégier une autre devise, par exemple CDF, passez `?debit_currency=CDF`. Le serveur utilise le taux XAF→CDF actif (ou l'inverse du taux CDF→XAF s'il n'existe pas de taux direct), choisit un portefeuille actif suffisamment approvisionné et renvoie sa devise et le montant arrondi. Le devis ne réserve pas les fonds; l'émission contrôle à nouveau le solde.

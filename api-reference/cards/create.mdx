@@ -4,7 +4,7 @@ description: "Émettez une carte USD et débitez les frais dans la devise du por
 openapi: "openapi.json POST /cards"
 ---
 
-`idempotency_key` identifie durablement l'émission. Réutilisez la même valeur lors d'une nouvelle tentative.
+`idempotency_key` identifie durablement l'émission. Réutilisez la même valeur lors d'une nouvelle tentative. N'envoyez pas `wallet_id` : le serveur choisit le portefeuille actif éligible et suffisamment approvisionné. `debit_currency` est une préférence facultative; le serveur peut sélectionner un autre portefeuille actif si le solde est insuffisant dans cette devise. Le contrôle du solde et le débit sont effectués côté serveur; le devis préalable ne réserve pas de fonds.
 
 <RequestExample>
 ```bash cURL
@@ -14,9 +14,7 @@ curl --request POST \
   --header 'Content-Type: application/json' \
   --data '{
     "customer_id": "f1bdad5d-bb31-410d-869c-44a28e876ded",
-    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
     "idempotency_key": "card-issuance-2026-001",
-    "debit_currency": "XAF",
     "initial_balance": "10.00",
     "category": "PERSONAL",
     "grade": "STANDARD"
@@ -26,9 +24,7 @@ curl --request POST \
 ```json Payload
 {
   "customer_id": "f1bdad5d-bb31-410d-869c-44a28e876ded",
-  "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
   "idempotency_key": "card-issuance-2026-001",
-  "debit_currency": "XAF",
   "initial_balance": "10.00",
   "category": "PERSONAL",
   "grade": "STANDARD"
@@ -46,16 +42,20 @@ curl --request POST \
       "virtual_card_customer_id": "f1bdad5d-bb31-410d-869c-44a28e876ded",
       "provider_reference": "38537f3f-3948-43af-fd9d-08df17dfe646",
       "issuance_reference": "card-issuance-2026-001",
-      "charged_amount": "2000.00000000",
+      "charged_amount": "2070.00000000",
       "charged_currency": "XAF",
       "environment": "LIVE",
       "card_sequence": 1
     },
     "pricing": {
       "card_currency": "USD",
-      "card_creation_fee_usd": "3.30",
+      "card_creation_fee_usd": "3.00",
       "wallet_debit": {
-        "amount": "2000.00",
+        "amount": "2070",
+        "currency": "XAF"
+      },
+      "selected_wallet": {
+        "id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
         "currency": "XAF"
       }
     },

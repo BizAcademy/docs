@@ -32,6 +32,10 @@ Une fois le profil du porteur validé :
 4. Indiquez le montant initial à provisionner depuis votre solde principal BizConnectPay.
 5. La carte est générée immédiatement et prête à l'emploi.
 
+Les frais d'émission sont configurés par l'administrateur et affichés avant confirmation. Le prix initial par défaut est de **3 USD**. Le portefeuille actif à débiter est sélectionné automatiquement par BizConnectPay selon son solde disponible; vous ne choisissez ni ne transmettez son identifiant dans la requête API. Le taux USD/XAF de référence est configurable (valeur initiale : **690 XAF pour 1 USD**), puis le taux actif XAF/devise du portefeuille est appliqué pour les autres devises. Les arrondis suivent la précision de la devise.
+
+Des frais récurrents peuvent s'appliquer : **1 USD par carte et par mois** (valeur initiale). Les retraits de carte sont soumis à des frais configurables, initialement **2 USD**. Les frais et taux effectifs sont administrés par BizConnectPay et peuvent être modifiés.
+
 ---
 
 ## 3. Sécurité et contrôle des dépenses
@@ -42,4 +46,3 @@ Pour une sécurité maximale de votre trésorerie :
 - **Gel / Dégel instantané** : Bloquez temporairement une carte en un clic en cas de doute, et réactivez-la dès que nécessaire sans avoir à la recréer.
 - **Révélation sécurisée des données sensibles** : Le numéro à 16 chiffres (PAN), la date d'expiration et le code de sécurité CVV sont chiffrés. Cliquez sur l'icône de l'œil et confirmez votre code 2FA pour les afficher ou les copier.
 - **Rechargement et Déchargement en temps réel** : Réinjectez des fonds sur la carte ou rapatriez le solde restant vers votre portefeuille principal à tout moment.
-

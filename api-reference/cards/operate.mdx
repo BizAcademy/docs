@@ -4,7 +4,7 @@ description: "Alimentez, retirez, activez, désactivez ou terminez une carte."
 openapi: "openapi.json POST /cards/{virtualCard}/operations"
 ---
 
-Le champ `amount` est obligatoire uniquement pour `topup` et `withdraw`.
+Le champ `amount` est obligatoire uniquement pour `topup` et `withdraw`. Pour `withdraw`, fournissez aussi une `idempotency_key` unique et réutilisez-la sans modification si vous relancez la même requête. Le retrait entraîne les frais configurés par l'administrateur (valeur initiale : 2 USD), convertis dans la devise du portefeuille au taux actif. La réservation des frais est capturée si le fournisseur confirme le succès; en cas d'échec définitif, elle est libérée.
 
 <RequestExample>
 ```bash cURL
@@ -44,3 +44,13 @@ curl --request POST \
 }
 ```
 </ResponseExample>
+
+Exemple de retrait idempotent :
+
+```json
+{
+  "action": "withdraw",
+  "amount": "25.00",
+  "idempotency_key": "card-withdrawal-2026-001"
+}
+```

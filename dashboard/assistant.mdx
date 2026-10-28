@@ -1,0 +1,89 @@
+---
+title: "Assistant marchand et support"
+description: "Utiliser le chat BizConnectPay en temps réel et suivre les demandes au support."
+---
+
+L’assistant BizConnectPay répond à partir des soldes et transactions autorisés du compte marchand. Il ne peut pas initier de paiement, retrait, remboursement ni modifier les paramètres du compte. Le marchand doit accepter le traitement de son contexte avant d’utiliser l’assistant.
+
+## Chat en temps réel
+
+Le dashboard ouvre une connexion Socket.IO sécurisée sur `https://api.bizconnectpay.com`. Le jeton d’accès du dashboard est transmis dans le handshake Socket.IO, puis vérifié par l’API BizConnectPay. Il n’est jamais placé dans l’URL ni transmis au fournisseur IA par le navigateur.
+
+Événements du chat :
+
+| Événement | Sens | Données principales |
+|---|---|---|
+| `assistant:message` | Dashboard → serveur | `request_id`, `conversation_id`, `message`, `language` |
+| `assistant:typing` | Serveur → dashboard | `active` |
+| `assistant:reply` | Serveur → dashboard | `request_id`, `conversation`, `message` |
+| `assistant:error` | Serveur → dashboard | `request_id`, `code`, `message` |
+
+Les messages sont enregistrés dans l’API. En cas de coupure, rechargez la conversation depuis le dashboard. L’agent reçoit uniquement les données agrégées du compte et les dernières transactions sans numéros de téléphone ni détails de carte.
+
+## Rapports programmés
+
+Le marchand peut programmer un résumé quotidien des paiements, un bilan hebdomadaire du compte ou un suivi des opérations en attente. Le traitement utilise les mêmes données agrégées que l’assistant, respecte le consentement du marchand et s’exécute dans la file Laravel. Les tâches sont en lecture seule : elles ne peuvent ni envoyer ni approuver de paiements ou remboursements. La révocation du consentement supprime les rapports, conversations, notes et programmations de cet utilisateur.
+
+Endpoints d’administration des propres rapports du marchand :
+
+| Méthode | Endpoint | Usage |
+|---|---|---|
+| `POST` | `/api/v1/assistant/jobs` | Programmer un modèle de rapport (`template`, `cadence`, `timezone`, `local_time`, `language`) |
+| `PATCH` | `/api/v1/assistant/jobs/{job}` | Modifier l’horaire ou mettre en pause/reprendre |
+| `POST` | `/api/v1/assistant/jobs/{job}/run` | Lancer immédiatement un rapport |
+| `GET` | `/api/v1/assistant/jobs/{job}/runs` | Consulter les rapports et leur statut |
+| `DELETE` | `/api/v1/assistant/jobs/{job}` | Supprimer la programmation et son historique |
+
+Le moteur de planification est contrôlé par `schedule:work`. Si les appels IA sont désactivés, le système utilise la base de connaissances et les données locales BizConnectPay ; toute question sans réponse fiable est envoyée au support. Le consentement doit toujours être actif au moment de l’exécution.
+
+## Contrôles administrateur
+
+Les rôles `ADMIN` et `SUPER_ADMIN` peuvent afficher `/admin/assistant` dans le dashboard. Ils peuvent rendre l’agent visible/invisible sur le dashboard marchand, activer séparément les appels vers l’API IA et gérer les articles de la base de connaissances locale. Les appels IA sont désactivés par défaut. Lorsque l’agent est désactivé, son entrée de navigation disparaît et l’API refuse les nouveaux messages. Le paramètre serveur `MERCHANT_ASSISTANT_HARD_DISABLED=true` constitue un coupe-circuit d’urgence qui prévaut sur le réglage admin.
+
+| Méthode | Endpoint | Usage |
+|---|---|---|
+| `GET` | `/api/v1/admin/assistant/settings` | Lire les options et la base de connaissances paginée |
+| `PUT` | `/api/v1/admin/assistant/settings` | Modifier `agent_enabled` et/ou `ai_api_enabled` |
+| `POST` | `/api/v1/admin/assistant/knowledge-base` | Ajouter un article (`title`, `category`, `keywords`, `content`, `active`) |
+| `PUT` | `/api/v1/admin/assistant/knowledge-base/{article}` | Modifier un article local |
+| `DELETE` | `/api/v1/admin/assistant/knowledge-base/{article}` | Supprimer un article local |
+
+## Demandes de support
+
+Le marchand peut ouvrir une demande depuis **Support**. Si l’assistant indique qu’il ne peut pas répondre de façon fiable à une question hors de son contexte, BizConnectPay crée automatiquement un ticket et l’oriente vers une file de support adaptée : opérations, finance, conformité, risque ou technique.
+
+Les tickets et leur fil de discussion sont disponibles via les endpoints authentifiés suivants :
+
+| Méthode | Endpoint | Usage |
+|---|---|---|
+| `GET` | `/api/v1/support/tickets` | Lister les tickets du compte marchand |
+| `POST` | `/api/v1/support/tickets` | Créer un ticket (`subject`, `message`, `category`) |
+| `GET` | `/api/v1/support/tickets/{ticket}` | Lire un ticket et ses messages visibles |
+| `POST` | `/api/v1/support/tickets/{ticket}/messages` | Répondre dans le chat du ticket |
+
+Le dashboard admin gère les files via `/api/v1/admin/support-tickets`, consulte un ticket avec `GET /api/v1/admin/support-tickets/{ticket}`, répond avec `POST /api/v1/admin/support-tickets/{ticket}/messages` et modifie le statut, la priorité et l’équipe avec `PATCH /api/v1/admin/support-tickets/{ticket}`. Les rôles d’administration limitent chaque agent à sa file ; les administrateurs et responsables des opérations peuvent superviser toutes les files.
+
+Le chat du ticket utilise Socket.IO :
+
+| Événement | Sens | Données principales |
+|---|---|---|
+| `support:join` | Dashboard → serveur | `ticket_id` ; l’API vérifie les droits avant l’entrée dans la salle |
+| `support:message` | Les deux sens | `ticket_id`, `message`, `visibility` |
+
+Les notes `INTERNAL` sont réservées aux agents d’administration et ne sont jamais diffusées au marchand. Les réponses publiques sont enregistrées dans l’historique et envoyées en direct aux participants autorisés du ticket.
+
+## Configuration du service
+
+Configurer côté serveur, jamais dans le navigateur :
+
+```dotenv
+MERCHANT_ASSISTANT_HARD_DISABLED=false
+OPENAI_API_KEY=
+OPENAI_MODEL=
+OPENAI_BASE_URL=https://api.openai.com/v1
+MERCHANT_ASSISTANT_TIMEOUT=30
+MERCHANT_ASSISTANT_API_BASE_URL=http://bizconnectpay_app/api/v1
+MERCHANT_ASSISTANT_SOCKET_ORIGINS=https://bpanel.bizconnectpay.com,https://pay.bizconnectpay.com
+```
+
+Les identifiants IA ne sont stockés que dans l’environnement serveur. Même configurés, ils ne sont utilisés que si `ai_api_enabled` est activé par un Admin ou Super Admin ; ce réglage est désactivé par défaut. Le service Socket.IO doit être déployé avec le backend et exposé sur le chemin `/socket.io` de `api.bizconnectpay.com`.

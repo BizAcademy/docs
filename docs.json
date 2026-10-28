@@ -85,7 +85,8 @@
             "group": "Prise en main",
             "pages": [
               "dashboard/overview",
-              "dashboard/verification"
+              "dashboard/verification",
+              "dashboard/assistant"
             ]
           },
           {

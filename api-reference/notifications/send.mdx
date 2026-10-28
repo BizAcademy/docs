@@ -6,6 +6,8 @@ openapi: "openapi.json POST /notifications/messages"
 
 L'envoi utilise un endpoint unique. Passez `channels` pour diffuser dans une seule requête vers plusieurs canaux et `recipients` pour fournir une adresse distincte par canal. Un abonnement actif et les quotas du forfait s'appliquent à chaque canal.
 
+Vous pouvez envoyer votre propre modèle marchand, au lieu du message par défaut de BizConnectPay, en créant d'abord un modèle avec [l'API des modèles de notification](templates). À l'envoi, fournissez `template_code`, `language` et les `variables` correspondantes. Pour diffuser sur plusieurs canaux, créez un modèle avec le même code pour chacun d'eux. Chaque message reprend le contenu du modèle associé à son canal. Les e-mails affichent le nom de marque configuré sur le modèle ; l'adresse d'expédition reste celle configurée par la plateforme.
+
 ### Protection anti-bannissement WhatsApp
 Les envois WhatsApp s'appuient sur notre passerelle Baileys intégrée et appliquent des sécurités strictes :
 - Délais aléatoires gaussiens de 2s à 8s (distribution Box-Muller).
@@ -26,11 +28,19 @@ curl --request POST \
       "SMS": "+237699001122",
       "WHATSAPP": "+237699001122"
     },
-    "subject": "Paiement confirmé",
-    "message": "Bonjour ! Votre paiement pour la commande #1042 a bien été confirmé."
+    "template_code": "PAYMENT_SUCCESS",
+    "language": "fr",
+    "variables": {
+      "customer_name": "Awa",
+      "amount": "25 000",
+      "currency": "XOF",
+      "reference": "CMD-1042"
+    }
   }'
 ```
 </RequestExample>
+
+Pour conserver l'ancien envoi sans modèle, omettez `template_code` et envoyez directement `message` et, pour l'e-mail, `subject`.
 
 <ResponseExample>
 ```json 202 Accepted

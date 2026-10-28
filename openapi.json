@@ -506,6 +506,74 @@
         }
       }
     },
+    "/notification-templates": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Lister les modèles marchands",
+        "description": "Retourne uniquement les modèles du compte associé au jeton. Scope requis : notifications.read.",
+        "operationId": "listNotificationTemplates",
+        "parameters": [{ "$ref": "#/components/parameters/PerPage" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Créer un modèle marchand",
+        "description": "Crée un modèle EMAIL, SMS ou WHATSAPP isolé par compte. Scope requis : notifications.write. Les e-mails doivent inclure brand_name et subject.",
+        "operationId": "createNotificationTemplate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NotificationTemplateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Created" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/notification-templates/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/NotificationTemplateId" }],
+      "put": {
+        "tags": ["Notifications"],
+        "summary": "Modifier un modèle marchand",
+        "operationId": "updateNotificationTemplate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NotificationTemplateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      },
+      "delete": {
+        "tags": ["Notifications"],
+        "summary": "Supprimer un modèle marchand",
+        "operationId": "deleteNotificationTemplate",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "401": { "$ref": "#/components/responses/Unauthenticated" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
     "/whatsapp/session/connect": {
       "post": {
         "tags": ["Notifications"],
@@ -560,6 +628,12 @@
       }
     },
     "parameters": {
+      "NotificationTemplateId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
       "IdempotencyKey": {
         "name": "Idempotency-Key",
         "in": "header",
@@ -836,14 +910,30 @@
       },
       "NotificationMessageRequest": {
         "type": "object",
-        "required": ["message"],
+        "anyOf": [{ "required": ["message"] }, { "required": ["template_code"] }],
         "properties": {
           "channel": { "type": "string", "enum": ["SMS", "EMAIL", "WHATSAPP"], "description": "Canal unique (alternative à channels)." },
           "channels": { "type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": { "type": "string", "enum": ["SMS", "EMAIL", "WHATSAPP"] } },
           "recipient_address": { "type": "string", "description": "Adresse unique (alternative à recipients)." },
           "recipients": { "type": "object", "description": "Destinataires par canal, par exemple EMAIL, SMS et WHATSAPP.", "properties": { "EMAIL": { "type": "string", "format": "email" }, "SMS": { "type": "string" }, "WHATSAPP": { "type": "string" } } },
-          "message": { "type": "string", "description": "Contenu texte de la notification" },
-          "subject": { "type": "string", "description": "Objet de la notification (EMAIL)" }
+          "message": { "type": "string", "description": "Contenu texte direct (alternative à template_code)" },
+          "subject": { "type": "string", "description": "Objet de la notification (EMAIL, mode message direct)" },
+          "template_code": { "type": "string", "maxLength": 100, "description": "Code d'un modèle actif configuré pour chacun des canaux utilisés" },
+          "language": { "type": "string", "enum": ["fr", "en"], "default": "fr" },
+          "variables": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean", "null"] } }
+        }
+      },
+      "NotificationTemplateRequest": {
+        "type": "object",
+        "required": ["code", "channel", "language", "body"],
+        "properties": {
+          "code": { "type": "string", "maxLength": 100, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+          "channel": { "type": "string", "enum": ["EMAIL", "SMS", "WHATSAPP"] },
+          "language": { "type": "string", "enum": ["fr", "en"] },
+          "brand_name": { "type": "string", "maxLength": 120, "description": "Obligatoire pour EMAIL; affiché comme marque de l'expéditeur" },
+          "subject": { "type": "string", "maxLength": 255, "description": "Obligatoire pour EMAIL; objet visible par le destinataire" },
+          "body": { "type": "string", "maxLength": 4000, "description": "Contenu texte; variables au format {{nom}}" },
+          "active": { "type": "boolean", "default": true }
         }
       },
       "WhatsAppConnectRequest": {

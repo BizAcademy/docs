@@ -1,0 +1,66 @@
+---
+title: "Gérer les modèles de notification"
+description: "Créez les modèles de votre marque utilisés par l'API d'envoi de notifications. Scope requis : notifications.read ou notifications.write."
+---
+
+Les modèles sont isolés par compte marchand et par combinaison de code, canal et langue. Créez un modèle pour chaque canal que vous souhaitez utiliser (EMAIL, SMS ou WHATSAPP). Les destinataires reçoivent le corps du modèle marchand et ses variables, au lieu du message par défaut de BizConnectPay.
+
+Les variables utilisent la syntaxe `{{nom_variable}}`. Les variables trouvées dans le sujet et le corps sont retournées dans `variables` lors de la lecture du modèle. À l'envoi, toutes les variables utilisées doivent être fournies. Le nom de marque et l'objet sont obligatoires pour les modèles EMAIL. Le destinataire voit le nom et l'objet configurés par le marchand, sans habillage visuel BizConnectPay. L'adresse expéditrice des e-mails reste celle configurée par BizConnectPay.
+
+### Lister les modèles
+
+`GET /api/v1/notification-templates` — scope `notifications.read`.
+
+### Créer un modèle
+
+`POST /api/v1/notification-templates` — scope `notifications.write`.
+
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/notification-templates \
+  --header 'Authorization: Bearer <application_access_token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "code": "PAYMENT_SUCCESS",
+    "channel": "EMAIL",
+    "language": "fr",
+    "brand_name": "Boutique Awa",
+    "subject": "Paiement confirmé pour {{reference}}",
+    "body": "Bonjour {{customer_name}}, votre paiement de {{amount}} {{currency}} a été confirmé. Référence : {{reference}}.",
+    "active": true
+  }'
+```
+
+Créer un modèle SMS ou WhatsApp utilise le même endpoint et les champs `code`, `channel`, `language`, `body` et `active`. Le champ `brand_name` n'est utilisé que pour EMAIL. Le code peut être réutilisé pour un autre canal ou une autre langue.
+
+### Modifier ou supprimer un modèle
+
+- `PUT /api/v1/notification-templates/{id}` — scope `notifications.write`. Le corps de la requête reprend les champs de création.
+- `DELETE /api/v1/notification-templates/{id}` — scope `notifications.write`.
+
+Chaque opération est limitée aux modèles appartenant au compte de l'application authentifiée. Les modèles désactivés restent consultables, mais ne peuvent pas être utilisés pour envoyer une notification.
+
+### Envoyer avec un modèle
+
+Ajoutez `template_code`, `language` et `variables` à `POST /api/v1/notifications/messages`. Le code doit exister pour chaque canal demandé et être actif.
+
+```json
+{
+  "channels": ["EMAIL", "SMS", "WHATSAPP"],
+  "recipients": {
+    "EMAIL": "client@example.com",
+    "SMS": "+237699001122",
+    "WHATSAPP": "+237699001122"
+  },
+  "template_code": "PAYMENT_SUCCESS",
+  "language": "fr",
+  "variables": {
+    "customer_name": "Awa",
+    "amount": "25 000",
+    "currency": "XOF",
+    "reference": "CMD-1042"
+  }
+}
+```
+
+L'envoi multi-canal est traité canal par canal. Assurez-vous d'avoir créé un modèle `PAYMENT_SUCCESS` pour EMAIL, SMS et WHATSAPP. La souscription et les quotas de notification existants continuent de s'appliquer.

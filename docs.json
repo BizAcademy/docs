@@ -71,6 +71,7 @@
             "group": "Notifications",
             "pages": [
               "api-reference/notifications/send",
+              "api-reference/notifications/templates",
               "api-reference/notifications/whatsapp-connect",
               "api-reference/notifications/whatsapp-status"
             ]

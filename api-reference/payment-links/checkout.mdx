@@ -8,6 +8,33 @@ La page hébergée est disponible à l’adresse `https://pay.bizconnectpay.com/
 
 Chaque méthode renvoyée par `GET /payment-links/{code}/checkout` inclut `otp_required`. Pour un pays sélectionné, utilisez le même indicateur sur son entrée `operators`. Affichez un champ de code uniquement quand sa valeur est `true`, puis envoyez le code dans `otp_code` au POST de checkout. Certaines méthodes peuvent renvoyer une URL de redirection dans la réponse.
 
+## Méthodes avec lien de paiement
+
+Certaines méthodes AfribaPAY, notamment Wave et Djamo, peuvent demander au payeur de terminer l’opération sur une page externe. Pour Djamo, il doit ouvrir cette page puis scanner le QR code avec l’application Djamo. La réponse de checkout expose la page dans `data.redirect_url` : affichez un bouton pour l’ouvrir. Si cette URL est présente, ne demandez pas au payeur de valider la transaction sur son téléphone.
+
+Exemple de réponse avec une action requise :
+
+```json 202 Accepted — action du payeur requise
+{
+  "success": true,
+  "data": {
+    "message": "Payment request accepted by the provider.",
+    "reference": "BCP6ABE23E83CF85COL",
+    "payment_reference": "BCP6ABE23E83CF85COL",
+    "status": "REQUIRES_ACTION",
+    "provider_reference": "PIM-DJAMO-001",
+    "redirect_url": "https://pay.example/djamo/checkout"
+  },
+  "meta": {
+    "correlation_id": "b39b6c1d-d682-4f61-8839-93b8a9bd76e7"
+  }
+}
+```
+
+`reference` est la référence standard de la collecte BizConnectPay (`BCP` + valeur unique + `COL`) et correspond à la référence de transaction affichée dans le tableau de bord. `payment_reference` reste disponible pour les intégrations existantes et contient la même valeur. Le lien de paiement possède sa propre référence : ne l’utilisez pas comme référence de collecte.
+
+Le lien indique uniquement où le payeur poursuit son paiement. Gardez le checkout ouvert et continuez à interroger son endpoint de statut ou attendez le webhook BizConnectPay. Ne livrez pas la commande avant le statut final `COMPLETED`.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \
@@ -39,8 +66,9 @@ curl --request POST \
 {
   "success": true,
   "data": {
-    "message": "Payment request sent. Approve it on your phone.",
-    "payment_reference": "BCP-PI-01JACC0N",
+    "message": "Payment request accepted by the provider.",
+    "reference": "BCP6ABE23E83CF85COL",
+    "payment_reference": "BCP6ABE23E83CF85COL",
     "status": "CREATED"
   },
   "meta": {
@@ -56,7 +84,7 @@ La réponse `202` signifie que la demande a été acceptée pour traitement, pas
 
 ```bash cURL
 curl --request GET \
-  --url 'https://api.bizconnectpay.com/api/v1/payment-links/0PKOW1IM14/checkout/status/BCP-PI-01JACC0N'
+  --url 'https://api.bizconnectpay.com/api/v1/payment-links/0PKOW1IM14/checkout/status/BCP6ABE23E83CF85COL'
 ```
 
 La réponse de statut inclut les deux URL configurées sur le lien. Elles peuvent être `null` si le marchand n’en a pas défini :
@@ -66,7 +94,7 @@ La réponse de statut inclut les deux URL configurées sur le lien. Elles peuven
   "success": true,
   "data": {
     "status": "COMPLETED",
-    "reference": "BCP-PI-01JACC0N",
+    "reference": "BCP6ABE23E83CF85COL",
     "provider_reference": "provider-transaction-id",
     "amount": "100.0000",
     "currency": "XAF",

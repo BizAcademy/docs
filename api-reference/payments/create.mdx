@@ -12,6 +12,29 @@ Certaines méthodes peuvent renvoyer `redirect_url` dans la réponse. Redirigez 
 
 Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto). Le catalogue vous indique les méthodes crypto disponibles et les cryptomonnaies acceptées.
 
+## Djamo avec AfribaPAY
+
+Pour une collecte Djamo, utilisez `payment_method: "djamo"` dans les pays et devises où `GET /services` retourne cette méthode. AfribaPAY documente Djamo en Côte d’Ivoire et au Sénégal en XOF. La disponibilité réelle peut évoluer : vérifiez toujours le catalogue avant de proposer la méthode.
+
+Le payeur doit ouvrir le lien retourné et scanner le QR code avec l’application Djamo. Après acceptation de la demande, BizConnectPay expose le lien du fournisseur sous `redirect_url`. Présentez ce lien au payeur et laissez-le ouvrir la page; ne considérez pas la demande comme payée à ce stade.
+
+```json Exemple de collecte Djamo
+{
+  "amount": "500",
+  "currency": "XOF",
+  "country": "CI",
+  "operation": "COLLECTION",
+  "payment_method": "djamo",
+  "payer": {
+    "phone_number": "+2250700000000",
+    "lang": "fr"
+  },
+  "description": "Commande 4821"
+}
+```
+
+Le statut final reste à vérifier avec `GET /payment-intents/{id}` ou avec les webhooks BizConnectPay. Utilisez `provider_reference` pour le rapprochement. Le lien Djamo ne remplace pas la vérification d’un statut `COMPLETED`.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \

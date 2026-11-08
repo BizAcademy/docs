@@ -10,7 +10,7 @@ Chaque méthode renvoyée par `GET /payment-links/{code}/checkout` inclut `otp_r
 
 ## Méthodes avec lien de paiement
 
-Certaines méthodes AfribaPAY, notamment Wave et Djamo, peuvent demander au payeur de terminer l’opération sur une page externe. Pour Djamo, il doit ouvrir cette page puis scanner le QR code avec l’application Djamo. La réponse de checkout expose la page dans `data.redirect_url` : affichez un bouton pour l’ouvrir. Si cette URL est présente, ne demandez pas au payeur de valider la transaction sur son téléphone.
+Certains opérateurs, notamment Wave et Djamo, demandent au payeur de terminer l’opération sur une page externe. La passerelle renvoie le lien dans `data.provider_link`; BizConnectPay le retourne au marchand et au checkout sous `data.redirect_url`. Pour Djamo, le payeur ouvre cette page puis scanne le QR code avec l’application Djamo. Affichez un bouton pour ouvrir `redirect_url`. Si cette URL est présente, ne demandez pas au payeur de valider la transaction sur son téléphone.
 
 Exemple de réponse avec une action requise :
 

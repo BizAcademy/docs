@@ -8,7 +8,7 @@ Envoyez une clé `Idempotency-Key` stable pour la même opération métier. Une 
 
 Consultez `GET /services` avant l'intégration. Si la méthode choisie indique `otp_required: true`, recueillez le code à usage unique et envoyez-le dans `payer.otp_code`. La valeur peut être omise pour les méthodes qui ne l'exigent pas. Les codes ne sont transmis qu'au fournisseur dont la configuration les attend.
 
-Certaines méthodes peuvent renvoyer `redirect_url` dans la réponse. Redirigez le payeur vers cette URL pour qu'il termine l'autorisation. La réponse inclut `provider_reference` lorsque l'itinéraire de paiement a déjà accepté la demande; cette référence est utile pour rapprocher le paiement.
+Certaines méthodes, notamment Wave et Djamo, demandent au payeur de terminer le paiement sur une page externe. La passerelle peut renvoyer ce lien dans `data.provider_link` avec le statut `PENDING`. BizConnectPay le normalise dans `data.redirect_url` et renvoie le statut `REQUIRES_ACTION`. Ouvrez cette URL pour le payeur, puis vérifiez le statut final avec `GET /payment-intents/{id}` ou un webhook. `provider_reference` contient l’identifiant de transaction retourné par la passerelle et sert au rapprochement.
 
 Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto). Le catalogue vous indique les méthodes crypto disponibles et les cryptomonnaies acceptées.
 
@@ -16,7 +16,22 @@ Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto
 
 Pour une collecte Djamo, utilisez `payment_method: "djamo"` dans les pays et devises où `GET /services` retourne cette méthode. AfribaPAY documente Djamo en Côte d’Ivoire et au Sénégal en XOF. La disponibilité réelle peut évoluer : vérifiez toujours le catalogue avant de proposer la méthode.
 
-Le payeur doit ouvrir le lien retourné et scanner le QR code avec l’application Djamo. Après acceptation de la demande, BizConnectPay expose le lien du fournisseur sous `redirect_url`. Présentez ce lien au payeur et laissez-le ouvrir la page; ne considérez pas la demande comme payée à ce stade.
+Le payeur doit ouvrir le lien retourné et scanner le QR code avec l’application Djamo. Pour Wave comme pour Djamo, BizConnectPay expose le lien sous `redirect_url`. Présentez-le au payeur et laissez-le ouvrir la page; ne considérez pas la demande comme payée à ce stade.
+
+La passerelle renvoie par exemple cette structure pour Djamo. Le champ `provider_link` est conservé côté serveur puis rendu dans l’API BizConnectPay sous le nom `redirect_url` :
+
+```json Réponse de la passerelle
+{
+  "data": {
+    "status": "PENDING",
+    "transaction_id": "PIM261101012117407530900",
+    "operator": "djamo",
+    "country": "CI",
+    "currency": "XOF",
+    "provider_link": "https://p.djamo.com/payment-link/?type=payment_confirmation&chargeId=22f2dd0d-de17-4f6a-9026-b9fa1f0161ae"
+  }
+}
+```
 
 ```json Exemple de collecte Djamo
 {

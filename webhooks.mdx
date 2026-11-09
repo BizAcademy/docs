@@ -1,40 +1,113 @@
 ---
 title: "Webhooks"
-description: "Recevez les changements d'état définitifs et vérifiez leur signature."
+description: "Configurez une URL pour recevoir les changements de statut de vos paiements."
 icon: "webhook"
 ---
 
-Configurez une URL HTTPS depuis la section Développeurs du tableau de bord. Le secret de signature est affiché une seule fois lors de la création ou rotation du webhook.
+BizConnectPay envoie les événements à votre serveur lorsqu'un paiement lié à une application atteint un statut final. Les webhooks sont envoyés en arrière-plan. Ils complètent `GET /payment-intents/{id}` et les URL de retour du checkout.
 
-## Événements principaux
+## Configurer le webhook de votre application
 
-- `bizconnectpay.payment.completed.v1`
-- `bizconnectpay.payment.failed.v1`
-- `bizconnectpay.payout.completed.v1`
-- `bizconnectpay.payout.failed.v1`
-- `bizconnectpay.refund.completed.v1`
-- `bizconnectpay.refund.failed.v1`
-- `bizconnectpay.virtual_card.updated.v1`
+1. Créez votre application dans **Développeurs** > **Applications**.
+2. Ouvrez les paramètres de cette application et ajoutez une souscription webhook.
+3. Saisissez une URL HTTPS accessible publiquement et choisissez les événements à recevoir, par exemple `payment.completed` et `payment.failed`.
+4. Enregistrez le secret de signature affiché lors de la création. BizConnectPay ne le montre plus après cette étape.
 
-## Vérifier la signature
+La souscription est associée à une application précise. Pour recevoir son webhook, créez les paiements avec les identifiants de cette application. Les paiements du tableau de bord ou d'une autre application ne sont pas envoyés à cette souscription.
 
-Calculez le HMAC-SHA256 du corps HTTP brut avec le secret du webhook et comparez-le à `X-BizConnectPay-Signature` avec une comparaison en temps constant.
+## Événements de paiement
+
+Abonnez-vous à ces deux noms dans les paramètres de votre application :
+
+- `payment.completed` : le paiement est réussi.
+- `payment.failed` : le paiement a échoué.
+
+Les noms d'événement de l'enveloppe HTTP sont respectivement `bizconnectpay.transaction.completed.v1` et `bizconnectpay.transaction.failed.v1`. Les événements ne signalent pas un paiement simplement accepté ou en cours. Pour les liens de paiement, l'application associée au lien doit avoir la souscription active.
+
+## Requête envoyée à votre serveur
+
+BizConnectPay effectue un `POST` avec `Content-Type: application/json`. Exemple d'un paiement terminé :
+
+```json
+{
+  "specversion": "1.0",
+  "id": "01a194e1-2910-700f-9505-4d161cf2f4a8",
+  "type": "bizconnectpay.transaction.completed.v1",
+  "version": 1,
+  "source": "bizconnectpay-backend",
+  "subject": "TRANSACTION/01a194e0-88f3-7129-b9ad-7e23280aeb69",
+  "time": "2026-11-09T10:15:30+00:00",
+  "datacontenttype": "application/json",
+  "occurred_at": "2026-11-09T10:15:30+00:00",
+  "correlation_id": "d79ebc3c-cfbb-4a49-8e42-a4a9b8a166e2",
+  "data": {
+    "account_id": "458326ab-0588-43b9-8f76-6a74877a9e4d",
+    "amount": "100.0000",
+    "application_id": "56c21aef-170e-4941-a8da-e2aba353a42a",
+    "currency": "XAF",
+    "environment": "LIVE",
+    "fee_amount": "5.0000",
+    "net_amount": "95.0000",
+    "operation": "COLLECTION",
+    "payment_intent_id": "01a194e0-88f3-7129-b9ad-7e23280aeb69",
+    "provider_reference": "PIM261109101530001",
+    "reference": "BCP84a0cd71c001fCOL",
+    "status": "COMPLETED",
+    "transaction_id": "01a194e0-88f3-7129-b9ad-7e23280aeb69"
+  }
+}
+```
+
+Pour un échec, `type` devient `bizconnectpay.transaction.failed.v1` et `data.status` vaut `FAILED`. Les identifiants, références, montants et dates de cet exemple sont fictifs.
+
+## En-têtes et vérification de signature
+
+Chaque tentative contient les en-têtes suivants :
+
+| En-tête | Description |
+| --- | --- |
+| `X-BizConnectPay-Event` | Type d'événement, par exemple `bizconnectpay.transaction.completed.v1`. |
+| `X-BizConnectPay-Event-ID` | Identifiant stable à utiliser pour dédupliquer l'événement. Il correspond à `id` dans le corps. |
+| `X-BizConnectPay-Timestamp` | Horodatage Unix utilisé pour signer la requête. |
+| `X-BizConnectPay-Signature` | Signature HMAC-SHA256 au format `v1=<hex>`. |
+
+Calculez le HMAC sur le corps HTTP brut avec la chaîne `<timestamp>.<corps_brut>` et le secret de la souscription. Ne parsez pas puis ne sérialisez pas le JSON avant la vérification : les octets doivent être ceux reçus.
 
 ```js
 import crypto from "node:crypto";
 
-const received = request.headers["x-bizconnectpay-signature"];
-const expected = crypto
-  .createHmac("sha256", process.env.BIZCONNECTPAY_WEBHOOK_SECRET)
-  .update(request.rawBody)
-  .digest("hex");
+function isValidBizConnectPayWebhook(rawBody, headers, secret) {
+  const timestamp = headers["x-bizconnectpay-timestamp"];
+  const received = headers["x-bizconnectpay-signature"];
+  if (typeof timestamp !== "string" || typeof received !== "string") return false;
 
-const valid =
-  typeof received === "string" &&
-  received.length === expected.length &&
-  crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
+  const expected = "v1=" + crypto
+    .createHmac("sha256", secret)
+    .update(`${timestamp}.${rawBody}`)
+    .digest("hex");
+
+  const expectedBytes = Buffer.from(expected);
+  const receivedBytes = Buffer.from(received);
+  return expectedBytes.length === receivedBytes.length &&
+    crypto.timingSafeEqual(expectedBytes, receivedBytes);
+}
 ```
 
+## Répondre et traiter les nouvelles tentatives
+
+Après avoir validé la signature et enregistré l'événement de façon idempotente, répondez rapidement avec n'importe quel statut HTTP `2xx`. Par exemple :
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+```
+
+```json
+{"received":true}
+```
+
+BizConnectPay considère toute réponse `2xx` comme livrée. Les erreurs réseau et réponses non-`2xx` sont réessayées par la file de tâches jusqu'à six tentatives, avec un délai croissant. Votre système doit donc dédupliquer avec `X-BizConnectPay-Event-ID` ou le champ `id` avant d'exécuter l'opération métier.
+
 <Warning>
-  Répondez rapidement avec un statut `2xx`, rendez le traitement idempotent avec l'identifiant d'événement, puis effectuez les traitements lourds dans une file de tâches.
+  Un webhook est une notification serveur-à-serveur, pas une redirection du navigateur. Ne marquez pas une commande comme payée sur la seule base de la page de retour : vérifiez la signature et traitez uniquement un événement `completed` valide ou confirmez le statut avec l'API.
 </Warning>

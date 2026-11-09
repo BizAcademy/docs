@@ -35,13 +35,9 @@ Une fois l'application créée, vous obtenez :
 
 ---
 
-## 3. Configuration des Webhooks
+## 3. Configuration des webhooks
 
-Les webhooks permettent à BizConnectPay de notifier votre serveur dès qu'une transaction change d'état (paiement réussi, échec, virement complété) :
+Après la création de l'application, ouvrez ses paramètres, ajoutez une souscription webhook, puis saisissez votre URL HTTPS et sélectionnez les événements. Pour recevoir les paiements, sélectionnez `payment.completed` et `payment.failed`. La souscription ne reçoit que les événements des opérations créées avec cette application.
 
-1. Cliquez sur **Ajouter un endpoint Webhook**.
-2. Renseignez l'**URL de destination** (doit être accessible en HTTPS, ex: `https://api.monsite.com/webhooks/bizconnectpay`).
-3. Sélectionnez les événements à recevoir (ex: `payment.successful`, `payout.failed`).
-4. Une **Clé secrète de signature (Webhook Secret)** vous est attribuée pour valider l'en-tête `X-BizConnectPay-Signature` (HMAC-SHA256) sur votre serveur.
-5. Utilisez le bouton **Envoyer un événement de test** pour tester votre endpoint en conditions réelles.
+BizConnectPay envoie un POST signé à votre URL lorsque le paiement atteint un statut final. Le secret de signature est affiché une seule fois. Répondez avec un statut HTTP `2xx` après avoir enregistré l'événement. Dédupliquez les tentatives à l'aide de l'identifiant d'événement. Consultez [Webhooks](../webhooks) pour les exemples de corps, les en-têtes, la vérification HMAC et les nouvelles tentatives.
 

@@ -27,9 +27,15 @@ Chaque écriture financière est catégorisée par type d'opération :
 | :--- | :--- |
 | `PENDING` | Opération initiée, en attente de validation par le payeur sur son mobile ou sa banque. |
 | `PROCESSING` | Transaction prise en charge par le switch opérateur télécom ou le réseau bancaire. |
-| `SUCCESSFUL` | Transaction confirmée avec succès ; les fonds sont immédiatement disponibles. |
-| `FAILED` | Transaction rejetée (solde insuffisant du client, rejet opérateur ou délai USSD expiré). |
-| `EXPIRED` | Le client n'a pas répondu au prompt de confirmation dans le délai alloué (typiquement 5 à 15 minutes). |
+| `REQUIRES_ACTION` | Le payeur doit terminer une action, par exemple ouvrir un lien de paiement externe. |
+| `COMPLETED` | Le fournisseur a confirmé la réussite de la transaction. |
+| `FAILED` | Le fournisseur a confirmé l'échec de la transaction. Consultez le motif dans le détail. |
+| `UNKNOWN` | Le résultat n'est pas encore confirmé. Vérifiez à nouveau et rapprochez la référence fournisseur. |
+| `CANCELLED` | L'opération a été annulée avant son achèvement. |
+| `EXPIRED` | Le délai de traitement est dépassé ; la transaction n'est pas réussie. |
+| `RECONCILIATION_REQUIRED` | Une vérification manuelle est nécessaire avant de confirmer le résultat financier. |
+
+Les payouts peuvent aussi passer par `VALIDATING`, `FUNDS_LOCKED` et `SUBMITTED`. Sur la transaction normalisée, les deux premières correspondent à `PENDING`, tandis que `SUBMITTED` correspond à `PROCESSING`. Consultez [les statuts détaillés des pay-ins et payouts](../api-reference/transactions/statuses) pour les définitions et les actions recommandées.
 
 ---
 

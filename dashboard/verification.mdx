@@ -34,16 +34,23 @@ Documents requis :
 
 ## États de validation
 
-Votre dossier passe par les statuts suivants visibles en temps réel dans l'onglet **Vérification** :
+Le statut affiché dans **Vérification** concerne le dossier complet, pas un fichier isolé :
 
-| Statut | Signification | Actions autorisées |
+| Statut | Signification | Que faire ? |
 | :--- | :--- | :--- |
-| `UNVERIFIED` | Compte créé, aucun document soumis | Découverte du dashboard, environnement Sandbox |
-| `PENDING` | Documents transmis, analyse en cours par l'équipe conformité | Préparation de vos liens et intégrations API |
-| `VERIFIED` | Dossier approuvé par le pôle conformité | Encaissement en production, retraits, émission de cartes |
-| `REJECTED` | Document illisible, expiré ou non conforme | Consultez le motif affiché et soumettez à nouveau les pièces |
+| `NOT_STARTED` | Aucun dossier de vérification n'a encore été ouvert. | Créez un dossier et choisissez le parcours proposé pour votre compte. |
+| `PENDING` | Le dossier est ouvert et attend les pièces requises ou votre soumission initiale. | Téléversez les documents manquants, puis soumettez le dossier. |
+| `UNDER_REVIEW` | Vous avez soumis le dossier ; l'équipe conformité l'examine. | Attendez la décision. Vous ne pouvez pas modifier les pièces tant que l'examen est en cours. |
+| `MORE_INFORMATION_REQUIRED` | L'équipe conformité a demandé une correction ou des pièces supplémentaires. | Consultez le motif et la liste des pièces manquantes, mettez le dossier à jour, puis soumettez-le à nouveau. |
+| `APPROVED` | La vérification est approuvée. | Les services autorisés pour votre compte et votre niveau sont disponibles. |
+| `REJECTED` | La demande a été refusée. Le motif doit expliquer la décision. | Lisez le motif dans le dossier et suivez les indications du tableau de bord ou contactez le support si vous avez besoin d'aide. |
+| `EXPIRED` | Le dossier a expiré et ne peut plus poursuivre son traitement actuel. | Suivez l'action proposée dans le tableau de bord pour reprendre la vérification. |
 
-<Note>
-  L'examen des dossiers de vérification est généralement effectué sous un délai de **24 à 48 heures ouvrées**. Vous recevrez une notification par email dès la validation définitive de votre compte.
-</Note>
+Les dossiers plus anciens peuvent aussi afficher `SUBMITTED`, statut historique qui signifie que le dossier a été transmis pour examen.
+
+## Statut des pièces téléversées
+
+Une pièce acceptée par l'API apparaît avec le statut `ACTIVE` : le fichier est enregistré et rattaché au dossier. Ce statut confirme le téléversement, mais ne signifie pas que le dossier entier est approuvé. Le tableau de bord indique séparément si une pièce requise est reçue ou encore manquante.
+
+Pour une CNI, une carte nationale d'identité ou un permis de conduire, téléversez deux fichiers distincts : `*_FRONT` pour le recto et `*_BACK` pour le verso (par exemple `CNI_FRONT` et `CNI_BACK`). Pour un passeport, envoyez un seul fichier `PASSPORT` contenant la page d'identité (recto). Les récépissés et cartes d'électeur sont des pièces à fichier unique. Les formats acceptés sont PNG, JPG/JPEG et PDF.
 

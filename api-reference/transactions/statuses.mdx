@@ -1,0 +1,55 @@
+---
+title: "Statuts des pay-ins et payouts"
+description: "Comprenez les statuts renvoyés pendant le traitement des paiements entrants et des décaissements."
+icon: "circle-help"
+---
+
+BizConnectPay renvoie un statut pour chaque pay-in et payout. Un statut intermédiaire ne confirme pas que l'opération a réussi. Considérez uniquement `COMPLETED` comme une confirmation de succès.
+
+## Statuts communs
+
+Ces statuts peuvent apparaître sur un pay-in ou sur la transaction associée à un payout :
+
+| Statut | Signification | Action conseillée |
+| :--- | :--- | :--- |
+| `CREATED` | La demande est enregistrée et n'a pas encore commencé son traitement. | Attendez la mise à jour du statut. |
+| `PENDING` | L'opération attend une action, une validation ou le traitement du fournisseur. | Pour un pay-in, demandez au payeur de valider sur son téléphone ou de terminer le paiement sur la page externe. Pour un payout, attendez le traitement. |
+| `PROCESSING` | Le fournisseur traite l'opération. | Continuez à vérifier le statut. Ne créditez pas une commande et ne considérez pas le payout comme envoyé avant `COMPLETED`. |
+| `REQUIRES_ACTION` | Le payeur doit terminer une action, généralement en ouvrant `redirect_url`. | Redirigez le payeur vers cette URL, puis vérifiez à nouveau le statut. Ce statut concerne les pay-ins. |
+| `COMPLETED` | Le fournisseur a confirmé le succès de l'opération. | Confirmez le paiement ou le payout dans votre système. |
+| `FAILED` | Le fournisseur a confirmé l'échec de l'opération. | Consultez le motif d'échec renvoyé et, si une nouvelle tentative est appropriée, utilisez une nouvelle clé d'idempotence pour une nouvelle opération. |
+| `UNKNOWN` | BizConnectPay ne peut pas encore confirmer le résultat, par exemple en cas de réponse fournisseur incertaine. | Ne créez pas une opération de remplacement. Consultez le statut à nouveau et rapprochez la transaction avec `provider_reference`. Contactez le support si le statut reste incertain. |
+| `CANCELLED` | L'opération a été annulée avant son achèvement. | Vérifiez le détail de la transaction et l'état du solde avant de la recréer. |
+| `EXPIRED` | Le délai de traitement ou d'action est dépassé. L'opération n'est pas un succès. | Consultez le solde et l'historique avant de réessayer. |
+
+## Étapes propres aux payouts
+
+Le endpoint de payout peut exposer des étapes supplémentaires dans `data.status` :
+
+| Statut | Signification |
+| :--- | :--- |
+| `VALIDATING` | BizConnectPay vérifie le payout avant de réserver les fonds. |
+| `FUNDS_LOCKED` | Les fonds sont réservés dans le portefeuille en attendant la transmission du payout. Le bénéficiaire n'a pas encore nécessairement reçu les fonds. |
+| `SUBMITTED` | La demande de payout a été transmise au fournisseur. |
+| `RECONCILIATION_REQUIRED` | Le payout demande une vérification manuelle pour établir son résultat financier. |
+
+Pour ce statut, ne considérez pas le payout comme réussi ou échoué avant résolution. Contactez le support avec les références BizConnectPay et fournisseur.
+
+`VALIDATING` et `FUNDS_LOCKED` sont présentés comme `PENDING` sur la transaction normalisée. `SUBMITTED` est présenté comme `PROCESSING`, et `RECONCILIATION_REQUIRED` apparaît comme `UNKNOWN` dans le statut normalisé de la transaction. Consultez le payout pour obtenir son étape détaillée.
+
+## Vérifier le statut
+
+Pour un pay-in, consultez `GET /api/v1/payment-intents/{id}` (ou l'endpoint de consultation de paiement utilisé par votre intégration). Pour un payout, consultez `GET /api/v1/withdrawals/{reference}`. Ces endpoints peuvent actualiser le statut auprès du fournisseur lorsque c'est possible.
+
+Vous pouvez aussi écouter les webhooks BizConnectPay `payment.completed` et `payment.failed`. Vérifiez la signature, traitez les événements de manière idempotente et répondez rapidement avec un code HTTP `2xx`. Les webhooks de résultat ne remplacent pas la consultation de statut lorsqu'une transaction reste `UNKNOWN`.
+
+Conservez toujours la référence BizConnectPay et `provider_reference` pour le rapprochement. Ne déduisez pas le statut final de la seule réponse d'initiation, du lien de paiement ou de l'interface du fournisseur.
+
+## Exemple de cycle de vie
+
+```text
+Pay-in : CREATED → PROCESSING → REQUIRES_ACTION → COMPLETED
+Payout : CREATED → VALIDATING → FUNDS_LOCKED → SUBMITTED → PROCESSING → COMPLETED
+```
+
+Un cycle peut se terminer par `FAILED`, `CANCELLED` ou `EXPIRED`. Si le résultat fournisseur est temporairement impossible à confirmer, il peut rester `UNKNOWN` jusqu'à la prochaine vérification ou la résolution du rapprochement.

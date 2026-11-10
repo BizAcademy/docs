@@ -24,7 +24,7 @@
           },
           {
             "group": "Intégration",
-            "pages": ["environments", "idempotency", "webhooks", "errors"]
+            "pages": ["environments", "idempotency", "webhooks", "statuses", "errors"]
           }
         ]
       },
@@ -45,7 +45,7 @@
           },
           {
             "group": "Transactions",
-            "pages": ["api-reference/transactions/statuses", "api-reference/transactions/list", "api-reference/transactions/show"]
+            "pages": ["api-reference/transactions/list", "api-reference/transactions/show"]
           },
           {
             "group": "Payouts",

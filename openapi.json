@@ -188,7 +188,6 @@
             "application/json": {
               "schema": { "$ref": "#/components/schemas/WithdrawalRequest" },
               "example": {
-                "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
                 "amount": "25000",
                 "currency": "XOF",
                 "country": "CI",
@@ -720,11 +719,11 @@
       },
       "WithdrawalRequest": {
         "type": "object",
-        "required": ["wallet_id", "amount", "currency", "country", "payment_method", "destination"],
+        "required": ["amount", "currency", "country", "payment_method", "destination"],
         "properties": {
-          "wallet_id": { "type": "string", "format": "uuid" },
+          "wallet_id": { "type": ["string", "null"], "format": "uuid", "description": "Facultatif. BizConnectPay sélectionne automatiquement le wallet actif du pays et de la devise; pour la crypto, le wallet USD." },
           "amount": { "type": "number", "exclusiveMinimum": 0 },
-          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Use USD for crypto payouts and provide an active USD wallet owned by the authenticated account." },
+      "currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Use USD for crypto payouts; BizConnectPay selects the authenticated account's active USD wallet automatically." },
           "country": { "type": "string", "minLength": 2, "maxLength": 2 },
           "payment_method": { "type": "string" },
           "destination": { "type": "string" },
@@ -737,10 +736,10 @@
       },
       "RefundRequest": {
         "type": "object",
-        "required": ["transaction_reference", "wallet_id", "amount", "reason"],
+        "required": ["transaction_reference", "amount", "reason"],
         "properties": {
           "transaction_reference": { "type": "string" },
-          "wallet_id": { "type": "string", "format": "uuid" },
+          "wallet_id": { "type": ["string", "null"], "format": "uuid", "description": "Facultatif. Le wallet est sélectionné selon le pays et la devise de la transaction d'origine." },
           "amount": { "type": "number", "exclusiveMinimum": 0 },
           "reason": { "type": "string" }
         }
@@ -777,7 +776,9 @@
           "max_uses": {
             "type": ["integer", "null"],
             "minimum": 1
-          }
+          },
+          "success_url": { "type": ["string", "null"], "format": "uri", "maxLength": 2048, "description": "URL de redirection du navigateur après un paiement réussi." },
+          "failure_url": { "type": ["string", "null"], "format": "uri", "maxLength": 2048, "description": "URL de redirection du navigateur après un paiement échoué." }
         }
       },
       "PaymentLinkCheckoutRequest": {

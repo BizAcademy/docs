@@ -16,6 +16,9 @@ curl --request POST \
     "amount": "12500",
     "currency": "XAF",
     "description": "Facture octobre",
+    "success_url": "https://boutique.example/commande/4821/succes",
+    "failure_url": "https://boutique.example/commande/4821/echec",
+    "support_whatsapp_number": "+237690000000",
     "max_uses": 1,
     "expires_at": "2026-10-31T23:59:59Z"
   }'
@@ -26,6 +29,9 @@ curl --request POST \
   "amount": "12500",
   "currency": "XAF",
   "description": "Facture octobre",
+  "success_url": "https://boutique.example/commande/4821/succes",
+  "failure_url": "https://boutique.example/commande/4821/echec",
+  "support_whatsapp_number": "+237690000000",
   "max_uses": 1,
   "expires_at": "2026-10-31T23:59:59Z"
 }
@@ -55,3 +61,5 @@ curl --request POST \
 }
 ```
 </ResponseExample>
+
+Après une confirmation définitive, le navigateur du payeur est redirigé vers `success_url` ou `failure_url`. Ces URL servent à la redirection du navigateur ; elles ne remplacent pas les webhooks serveur-à-serveur. Configurez l'URL de webhook de l'application pour recevoir les événements de paiement.

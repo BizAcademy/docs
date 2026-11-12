@@ -16,7 +16,6 @@ curl --request POST \
   --header 'Content-Type: application/json' \
   --header 'Idempotency-Key: payout-5012' \
   --data '{
-    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
     "amount": "25000",
     "currency": "XOF",
     "country": "CI",
@@ -28,7 +27,6 @@ curl --request POST \
 
 ```json Payload
 {
-  "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
   "amount": "25000",
   "currency": "XOF",
   "country": "CI",
@@ -48,7 +46,6 @@ curl --request POST \
   "data": {
     "id": "a1a3a073-7578-47ab-af2b-c81bb923e74f",
     "reference": "BCP-OUT-01JACA2H",
-    "wallet_id": "4e969910-8f06-4cd2-b92c-01765472e0e9",
     "amount": "25000.0000",
     "currency": "XOF",
     "country": "CI",
@@ -63,3 +60,5 @@ curl --request POST \
 }
 ```
 </ResponseExample>
+
+BizConnectPay choisit le wallet actif du marchand selon `country` et `currency`. Pour un payout crypto, envoyez `currency: "USD"` ; le serveur sélectionne le wallet USD actif du compte.

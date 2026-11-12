@@ -6,6 +6,10 @@ openapi: "openapi.json POST /payment-links"
 
 Cet endpoint d'intégration est réservé aux comptes `BUSINESS` dont le KYB est approuvé. Un compte individuel vérifié peut toutefois créer et gérer ses liens depuis le tableau de bord BizConnectPay.
 
+Un lien n'est pas associé à un opérateur particulier dans le payload de création. Au checkout, BizConnectPay affiche les méthodes activées pour le pays et la devise choisis. Pour proposer Visa/Mastercard, configurez une route de collecte `card` en `USD` pour le pays international `XI`, puis vérifiez que le service apparaît dans `GET /services` et dans les méthodes du checkout. Le checkout peut demander une conversion de devise : elle doit être configurée pour la paire concernée.
+
+Après création, partagez `checkout_url`. Le payeur choisit **Visa / Mastercard** sur cette page. Après sa sélection, le checkout renvoie `redirect_url` si le fournisseur demande au payeur de poursuivre sur sa page sécurisée. Ouvrez ce lien afin de finaliser la transaction. Ne considérez pas la redirection ou le retour navigateur comme une preuve de paiement ; vérifiez le statut final ou recevez le webhook.
+
 <RequestExample>
 ```bash cURL
 curl --request POST \

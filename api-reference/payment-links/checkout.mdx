@@ -8,6 +8,43 @@ La page hébergée est disponible à l’adresse `https://pay.bizconnectpay.com/
 
 Chaque méthode renvoyée par `GET /payment-links/{code}/checkout` inclut `otp_required`. Pour un pays sélectionné, utilisez le même indicateur sur son entrée `operators`. Affichez un champ de code uniquement quand sa valeur est `true`, puis envoyez le code dans `otp_code` au POST de checkout. Certaines méthodes peuvent renvoyer une URL de redirection dans la réponse.
 
+## Paiement par carte
+
+Pour Visa/Mastercard, sélectionnez le pays `XI` (International), la devise `USD` et la méthode `card` si ces valeurs sont retournées par `GET /payment-links/{code}/checkout`. Dans le résultat `countries`, utilisez l'entrée `operators` du pays choisi. N'affichez pas la méthode si elle n'est pas présente : elle dépend de la configuration active des routes et des devises.
+
+Envoyez le `payment_method` tel qu'il apparaît dans le checkout. L'email et le téléphone sont obligatoires pour le POST de checkout ; aucune donnée de carte n'est envoyée à BizConnectPay. Le payeur saisit ses coordonnées bancaires sur la page sécurisée du fournisseur.
+
+Si la réponse contient `data.redirect_url`, ouvrez-la pour permettre au payeur de finaliser la transaction par carte. Ce lien est nécessaire pour poursuivre le paiement lorsque le fournisseur demande une confirmation. Gardez la référence de collecte BizConnectPay et confirmez le succès avec l'endpoint de statut ou le webhook avant de livrer la commande.
+
+Exemple de demande de checkout avec carte :
+
+```json Payload
+{
+  "country": "XI",
+  "currency": "USD",
+  "email": "client@example.com",
+  "phone_number": "+237690000000",
+  "payment_method": "card",
+  "lang": "fr"
+}
+```
+
+Exemple de réponse lorsqu'une redirection est nécessaire :
+
+```json 202 Accepted
+{
+  "success": true,
+  "data": {
+    "message": "Payment request accepted by the provider.",
+    "reference": "BCP8F4C129D7A23COL",
+    "payment_reference": "BCP8F4C129D7A23COL",
+    "status": "PROCESSING",
+    "provider_reference": "soleaspay-transaction-reference",
+    "redirect_url": "https://checkout.example.com/confirm/card"
+  }
+}
+```
+
 ## Méthodes avec lien de paiement
 
 Certains opérateurs, notamment Wave et Djamo, demandent au payeur de terminer l’opération sur une page externe. La passerelle renvoie le lien dans `data.provider_link`; BizConnectPay le retourne au marchand et au checkout sous `data.redirect_url`. Pour Djamo, le payeur ouvre cette page puis scanne le QR code avec l’application Djamo. Affichez un bouton pour ouvrir `redirect_url`. Si cette URL est présente, ne demandez pas au payeur de valider la transaction sur son téléphone.

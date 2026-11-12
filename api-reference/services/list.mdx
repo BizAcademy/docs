@@ -10,6 +10,8 @@ Le catalogue dépend de l'environnement de l'application et de la disponibilité
 
 Chaque service inclut aussi `method_type` (`MOBILE_MONEY`, `CRYPTO` ou `OTHER`). Les services crypto peuvent inclure `accepted_coins`. Affichez uniquement les méthodes retournées comme disponibles : l'administration peut désactiver un fournisseur, une capacité ou un itinéraire, et le catalogue reflète alors ce changement.
 
+Pour Visa/Mastercard, cherchez `payment_method: "card"`, `country.code: "XI"`, `currency.code: "USD"` et `operation: "COLLECTION"`. N'inférez pas la disponibilité à partir de l'existence d'un fournisseur : utilisez uniquement les services actifs retournés par ce catalogue.
+
 Les modes d'autorisation varient selon le pays et la méthode. Une demande de validation PIN affichée directement par l'opérateur n'est pas un code OTP à inclure dans l'API. Le catalogue `/services` est la référence pour savoir si l'intégration doit recueillir et transmettre un code.
 
 <RequestExample>

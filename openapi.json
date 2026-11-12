@@ -107,6 +107,36 @@
                 },
                 "description": "Paiement commande 9481",
                 "metadata": { "client_reference": "CMD-2026-9481" }
+              },
+              "examples": {
+                "mobileMoney": {
+                  "summary": "Collecte Mobile Money",
+                  "value": {
+                    "amount": "15000",
+                    "currency": "XAF",
+                    "country": "CM",
+                    "operation": "COLLECTION",
+                    "payment_method": "mtn_momo",
+                    "payer": { "phone_number": "+237671234567", "lang": "fr" },
+                    "description": "Paiement commande 9481"
+                  }
+                },
+                "card": {
+                  "summary": "Collecte Visa/Mastercard (service actif requis)",
+                  "value": {
+                    "amount": "10.00",
+                    "currency": "USD",
+                    "country": "XI",
+                    "operation": "COLLECTION",
+                    "payment_method": "card",
+                    "payer": {
+                      "phone_number": "+237690000000",
+                      "email": "client@example.com",
+                      "lang": "fr"
+                    },
+                    "description": "Commande 4821"
+                  }
+                }
               }
             }
           }
@@ -695,7 +725,7 @@
           "amount": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" },
           "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "XAF", "description": "Use USD for crypto deposits; the account must have an active USD wallet." },
           "operation": { "type": "string", "enum": ["COLLECTION", "DEPOSIT", "WITHDRAWAL", "REFUND", "TRANSFER", "PAYOUT", "REVERSAL", "FX_CONVERSION"] },
-          "payment_method": { "type": "string", "maxLength": 60 },
+          "payment_method": { "type": "string", "maxLength": 60, "examples": ["mtn_momo", "card"], "description": "Utilisez exactement le code disponible dans GET /services. Visa/Mastercard utilise card pour XI/USD lorsque le service est activé." },
           "payer": {
             "type": "object",
             "properties": {
@@ -793,7 +823,7 @@
           "lang": { "type": ["string", "null"], "enum": ["en", "fr", null] },
           "otp_code": { "type": ["string", "null"], "maxLength": 32, "description": "Code à usage unique, à fournir lorsque la méthode sélectionnée indique otp_required=true." },
           "phone_number": { "type": "string", "pattern": "^\\+[1-9][0-9]{7,14}$", "examples": ["+237690000000"] },
-          "payment_method": { "type": "string", "maxLength": 60, "examples": ["MOBILE_MONEY"] }
+          "payment_method": { "type": "string", "maxLength": 60, "examples": ["MOBILE_MONEY", "card"], "description": "Utilisez le code retourné pour le pays sélectionné. Une collecte par carte peut retourner redirect_url pour finaliser le paiement sur la page sécurisée du fournisseur." }
         }
       },
       "PublicPaymentLinkCheckoutResponse": {

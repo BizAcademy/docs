@@ -8,6 +8,49 @@ Envoyez une clé `Idempotency-Key` stable pour la même opération métier. Une 
 
 Consultez `GET /services` avant l'intégration. Si la méthode choisie indique `otp_required: true`, recueillez le code à usage unique et envoyez-le dans `payer.otp_code`. La valeur peut être omise pour les méthodes qui ne l'exigent pas. Les codes ne sont transmis qu'au fournisseur dont la configuration les attend.
 
+## Accepter une carte Visa ou Mastercard
+
+Une application peut demander un paiement par carte lorsque le catalogue retourne le service `card` pour le pays `XI`, la devise `USD` et l'opération `COLLECTION`. Le pays international doit être transmis comme `XI`; utilisez le code de méthode `card` renvoyé par `GET /services`. Le service doit être activé et routé par l'administration.
+
+Envoyez la demande avec `POST /payments` et le scope `payments.write`. `payer.phone_number` reste requis par le contrat de collecte. Les données de carte sont saisies sur la page sécurisée du fournisseur : ne les envoyez pas dans `payer`, `metadata` ou votre propre formulaire.
+
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payments \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: order-4821-card' \
+  --data '{
+    "amount": "10.00",
+    "currency": "USD",
+    "country": "XI",
+    "operation": "COLLECTION",
+    "payment_method": "card",
+    "payer": {
+      "phone_number": "+237690000000",
+      "email": "client@example.com",
+      "lang": "fr"
+    },
+    "description": "Commande 4821"
+  }'
+```
+
+Quand le fournisseur demande une action au payeur, la réponse contient `data.redirect_url`. Ouvrez cette URL pour que le payeur finalise la transaction sur la page sécurisée Visa/Mastercard. `redirect_url` peut être `null` si aucune redirection n'est requise. Une réponse `201` ou un statut intermédiaire ne confirme pas le paiement : attendez `COMPLETED` avec `GET /payment-intents/{id}` ou votre webhook avant de livrer la commande.
+
+Exemple de réponse lorsque le fournisseur demande au payeur de continuer sur sa page :
+
+```json Réponse — redirection requise
+{
+  "success": true,
+  "data": {
+    "reference": "BCP8F4C129D7A23COL",
+    "status": "PROCESSING",
+    "provider_reference": "provider-transaction-reference",
+    "redirect_url": "https://checkout.example.com/confirm/card"
+  }
+}
+```
+
 Certaines méthodes, notamment Wave et Djamo, demandent au payeur de terminer le paiement sur une page externe. La passerelle peut renvoyer ce lien dans `data.provider_link` avec le statut `PENDING`. BizConnectPay le normalise dans `data.redirect_url` et renvoie le statut `REQUIRES_ACTION`. Ouvrez cette URL pour le payeur, puis vérifiez le statut final avec `GET /payment-intents/{id}` ou un webhook. `provider_reference` contient l’identifiant de transaction retourné par la passerelle et sert au rapprochement.
 
 Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto). Le catalogue vous indique les méthodes crypto disponibles et les cryptomonnaies acceptées.

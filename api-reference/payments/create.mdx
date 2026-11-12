@@ -6,13 +6,13 @@ openapi: "openapi.json POST /payments"
 
 Envoyez une clé `Idempotency-Key` stable pour la même opération métier. Une nouvelle clé crée une nouvelle opération.
 
-Consultez `GET /services` avant l'intégration. Si la méthode choisie indique `otp_required: true`, recueillez le code à usage unique et envoyez-le dans `payer.otp_code`. La valeur peut être omise pour les méthodes qui ne l'exigent pas. Les codes ne sont transmis qu'au fournisseur dont la configuration les attend.
+Consultez `GET /services` avant l'intégration. Il vous indique les méthodes disponibles pour le pays, la devise et l'opération. Envoyez le code `payment_method` retourné par le catalogue. Si `otp_required` vaut `true`, recueillez le code à usage unique et envoyez-le dans `payer.otp_code`.
 
 ## Accepter une carte Visa ou Mastercard
 
-Une application peut demander un paiement par carte lorsque le catalogue retourne le service `card` pour le pays `XI`, la devise `USD` et l'opération `COLLECTION`. Le pays international doit être transmis comme `XI`; utilisez le code de méthode `card` renvoyé par `GET /services`. Le service doit être activé et routé par l'administration.
+Une application peut demander un paiement Visa/Mastercard lorsque le catalogue retourne le service `card` pour le pays `XI`, la devise `USD` et l'opération `COLLECTION`. Envoyez `XI` comme pays et utilisez le code `card` retourné par `GET /services`. Le service doit être activé dans votre compte.
 
-Envoyez la demande avec `POST /payments` et le scope `payments.write`. `payer.phone_number` reste requis par le contrat de collecte. Les données de carte sont saisies sur la page sécurisée du fournisseur : ne les envoyez pas dans `payer`, `metadata` ou votre propre formulaire.
+Envoyez la demande avec `POST /payments` et le scope `payments.write`. `payer.phone_number` reste requis par le contrat de collecte. Le payeur saisit ses données de carte sur la page sécurisée indiquée par `redirect_url`; ne transmettez jamais de numéro de carte ni de CVV à BizConnectPay.
 
 ```bash cURL
 curl --request POST \
@@ -35,63 +35,70 @@ curl --request POST \
   }'
 ```
 
-Quand le fournisseur demande une action au payeur, la réponse contient `data.redirect_url`. Ouvrez cette URL pour que le payeur finalise la transaction sur la page sécurisée Visa/Mastercard. `redirect_url` peut être `null` si aucune redirection n'est requise. Une réponse `201` ou un statut intermédiaire ne confirme pas le paiement : attendez `COMPLETED` avec `GET /payment-intents/{id}` ou votre webhook avant de livrer la commande.
+Quand une action du payeur est nécessaire, la réponse complète de `POST /payments` contient `data.redirect_url`. Ouvrez cette URL pour que le payeur finalise la transaction. `redirect_url` vaut `null` si aucune redirection n'est requise. Une réponse `201` ou un statut intermédiaire ne confirme pas le paiement : attendez `COMPLETED` avec `GET /payments/{paymentIntent}` ou votre webhook avant de livrer la commande.
 
-Exemple de réponse lorsque le fournisseur demande au payeur de continuer sur sa page :
+Exemple de réponse complète lorsque le payeur doit poursuivre le paiement sur une page sécurisée :
 
 ```json Réponse — redirection requise
 {
   "success": true,
   "data": {
+    "id": "c5420e62-f80a-48a8-bec8-06eabf59e486",
     "reference": "BCP8F4C129D7A23COL",
+    "account_id": "53258554-7e6a-4e8c-b213-a521430f83ce",
+    "application_id": "56c21aef-170e-4941-a8da-e2aba353a42a",
+    "country": "XI",
+    "amount": "10.0000",
+    "currency": "USD",
+    "operation": "COLLECTION",
+    "payment_method": "card",
+    "environment": "LIVE",
+    "description": "Commande 4821",
+    "metadata": {},
     "status": "PROCESSING",
     "provider_reference": "provider-transaction-reference",
-    "redirect_url": "https://checkout.example.com/confirm/card"
+    "transaction_reference": "BCP8F4C129D7A23COL",
+    "redirect_url": "https://checkout.example.com/confirm/payment",
+    "expires_at": null,
+    "created_at": "2026-11-12T10:30:00.000000Z",
+    "updated_at": "2026-11-12T10:30:00.000000Z"
+  },
+  "meta": {
+    "correlation_id": "9b76a47f-914b-46ab-a15a-19d8507aa589"
   }
 }
 ```
 
-Certaines méthodes, notamment Wave et Djamo, demandent au payeur de terminer le paiement sur une page externe. La passerelle peut renvoyer ce lien dans `data.provider_link` avec le statut `PENDING`. BizConnectPay le normalise dans `data.redirect_url` et renvoie le statut `REQUIRES_ACTION`. Ouvrez cette URL pour le payeur, puis vérifiez le statut final avec `GET /payment-intents/{id}` ou un webhook. `provider_reference` contient l’identifiant de transaction retourné par la passerelle et sert au rapprochement.
+Pour Djamo, utilisez la même route et le même format de demande : remplacez simplement `payment_method`, le pays et la devise par les valeurs correspondantes du catalogue, par exemple `djamo`, `CI` et `XOF`. Le payeur ouvre `redirect_url` et suit les instructions affichées pour finaliser le paiement. BizConnectPay conserve `provider_reference` pour le rapprochement; utilisez `GET /payments/{paymentIntent}` ou votre webhook pour connaître le statut final.
 
 Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto). Le catalogue vous indique les méthodes crypto disponibles et les cryptomonnaies acceptées.
 
-## Djamo avec AfribaPAY
+Exemple de demande Djamo avec la même API application :
 
-Pour une collecte Djamo, utilisez `payment_method: "djamo"` dans les pays et devises où `GET /services` retourne cette méthode. AfribaPAY documente Djamo en Côte d’Ivoire et au Sénégal en XOF. La disponibilité réelle peut évoluer : vérifiez toujours le catalogue avant de proposer la méthode.
-
-Le payeur doit ouvrir le lien retourné et scanner le QR code avec l’application Djamo. Pour Wave comme pour Djamo, BizConnectPay expose le lien sous `redirect_url`. Présentez-le au payeur et laissez-le ouvrir la page; ne considérez pas la demande comme payée à ce stade.
-
-La passerelle renvoie par exemple cette structure pour Djamo. Le champ `provider_link` est conservé côté serveur puis rendu dans l’API BizConnectPay sous le nom `redirect_url` :
-
-```json Réponse de la passerelle
-{
-  "data": {
-    "status": "PENDING",
-    "transaction_id": "PIM261101012117407530900",
-    "operator": "djamo",
-    "country": "CI",
+```bash cURL
+curl --request POST \
+  --url https://api.bizconnectpay.com/api/v1/payments \
+  --header 'Authorization: Bearer <access_token>' \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: order-4821-djamo' \
+  --data '{
+    "amount": "500",
     "currency": "XOF",
-    "provider_link": "https://p.djamo.com/payment-link/?type=payment_confirmation&chargeId=22f2dd0d-de17-4f6a-9026-b9fa1f0161ae"
-  }
-}
+    "country": "CI",
+    "operation": "COLLECTION",
+    "payment_method": "djamo",
+    "payer": {
+      "phone_number": "+2250700000000",
+      "email": "client@example.com",
+      "lang": "fr"
+    },
+    "description": "Commande 4821"
+  }'
 ```
 
-```json Exemple de collecte Djamo
-{
-  "amount": "500",
-  "currency": "XOF",
-  "country": "CI",
-  "operation": "COLLECTION",
-  "payment_method": "djamo",
-  "payer": {
-    "phone_number": "+2250700000000",
-    "lang": "fr"
-  },
-  "description": "Commande 4821"
-}
-```
+La méthode peut renvoyer `redirect_url`; ouvrez-la pour permettre au payeur de finaliser l'opération. Le statut final reste à vérifier avec `GET /payments/{paymentIntent}` ou avec les webhooks BizConnectPay. N'utilisez pas la redirection navigateur comme confirmation de paiement.
 
-Le statut final reste à vérifier avec `GET /payment-intents/{id}` ou avec les webhooks BizConnectPay. Utilisez `provider_reference` pour le rapprochement. Le lien Djamo ne remplace pas la vérification d’un statut `COMPLETED`.
+Pour un paiement crypto, consultez [Paiements et décaissements crypto](./crypto). Le catalogue vous indique les méthodes crypto disponibles et les cryptomonnaies acceptées.
 
 <RequestExample>
 ```bash cURL

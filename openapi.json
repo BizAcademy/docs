@@ -136,6 +136,22 @@
                     },
                     "description": "Commande 4821"
                   }
+                },
+                "djamo": {
+                  "summary": "Collecte Djamo (service actif requis)",
+                  "value": {
+                    "amount": "500",
+                    "currency": "XOF",
+                    "country": "CI",
+                    "operation": "COLLECTION",
+                    "payment_method": "djamo",
+                    "payer": {
+                      "phone_number": "+2250700000000",
+                      "email": "client@example.com",
+                      "lang": "fr"
+                    },
+                    "description": "Commande 4821"
+                  }
                 }
               }
             }
@@ -725,7 +741,7 @@
           "amount": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" },
           "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "XAF", "description": "Use USD for crypto deposits; the account must have an active USD wallet." },
           "operation": { "type": "string", "enum": ["COLLECTION", "DEPOSIT", "WITHDRAWAL", "REFUND", "TRANSFER", "PAYOUT", "REVERSAL", "FX_CONVERSION"] },
-          "payment_method": { "type": "string", "maxLength": 60, "examples": ["mtn_momo", "card"], "description": "Utilisez exactement le code disponible dans GET /services. Visa/Mastercard utilise card pour XI/USD lorsque le service est activé." },
+          "payment_method": { "type": "string", "maxLength": 60, "examples": ["mtn_momo", "djamo", "card"], "description": "Utilisez exactement le code payment_method disponible dans GET /services, par exemple mtn_momo, djamo ou card selon le pays, la devise et le service activé." },
           "payer": {
             "type": "object",
             "properties": {
@@ -823,7 +839,7 @@
           "lang": { "type": ["string", "null"], "enum": ["en", "fr", null] },
           "otp_code": { "type": ["string", "null"], "maxLength": 32, "description": "Code à usage unique, à fournir lorsque la méthode sélectionnée indique otp_required=true." },
           "phone_number": { "type": "string", "pattern": "^\\+[1-9][0-9]{7,14}$", "examples": ["+237690000000"] },
-          "payment_method": { "type": "string", "maxLength": 60, "examples": ["MOBILE_MONEY", "card"], "description": "Utilisez le code retourné pour le pays sélectionné. Une collecte par carte peut retourner redirect_url pour finaliser le paiement sur la page sécurisée du fournisseur." }
+          "payment_method": { "type": "string", "maxLength": 60, "examples": ["MOBILE_MONEY", "djamo", "card"], "description": "Utilisez le code retourné pour le pays sélectionné. Une collecte par carte ou Djamo peut retourner redirect_url pour finaliser le paiement sur la page sécurisée." }
         }
       },
       "PublicPaymentLinkCheckoutResponse": {
@@ -923,7 +939,7 @@
                     "currency": { "type": "object", "additionalProperties": true },
                     "operation": { "type": "string" },
                     "payment_method": { "type": "string" },
-                    "method_type": { "type": "string", "enum": ["MOBILE_MONEY", "CRYPTO", "OTHER"] },
+                    "method_type": { "type": "string", "enum": ["MOBILE_MONEY", "CARD", "CRYPTO", "OTHER"] },
                     "accepted_coins": { "type": "array", "items": { "type": "string" } },
                     "crypto_asset_code": { "type": ["string", "null"], "description": "Configured crypto payout asset for the service, when applicable." },
                     "otp_required": {

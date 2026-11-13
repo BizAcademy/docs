@@ -222,7 +222,7 @@
       "post": {
         "tags": ["Décaissements"],
         "summary": "Créer un payout",
-        "description": "Débite un wallet et envoie les fonds au destinataire. Scope requis : `withdrawals.write`.",
+        "description": "Débite un wallet et envoie les fonds au destinataire. Le montant doit être compris entre 500 et 500000 inclus, dans la devise de la demande. Scope requis : `withdrawals.write`.",
         "operationId": "createPayout",
         "parameters": [
           { "$ref": "#/components/parameters/IdempotencyKey" },
@@ -768,8 +768,8 @@
         "required": ["amount", "currency", "country", "payment_method", "destination"],
         "properties": {
           "wallet_id": { "type": ["string", "null"], "format": "uuid", "description": "Facultatif. BizConnectPay sélectionne automatiquement le wallet actif du pays et de la devise; pour la crypto, le wallet USD." },
-          "amount": { "type": "number", "exclusiveMinimum": 0 },
-      "currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Use USD for crypto payouts; BizConnectPay selects the authenticated account's active USD wallet automatically." },
+          "amount": { "type": "number", "minimum": 500, "maximum": 500000, "description": "Montant du payout dans la devise demandée; minimum 500, maximum 500000, bornes incluses." },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "description": "Use USD for crypto payouts; BizConnectPay selects the authenticated account's active USD wallet automatically." },
           "country": { "type": "string", "minLength": 2, "maxLength": 2 },
           "payment_method": { "type": "string" },
           "destination": { "type": "string" },

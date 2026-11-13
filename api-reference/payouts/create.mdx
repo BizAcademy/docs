@@ -6,6 +6,8 @@ openapi: "openapi.json POST /payouts"
 
 La clé `Idempotency-Key` empêche un double décaissement lors d'une nouvelle tentative.
 
+Le montant d'un payout doit être compris entre **500** et **500 000**, bornes incluses, dans la devise envoyée. Cette règle s'applique aux payouts locaux et crypto ainsi qu'aux demandes envoyées depuis le dashboard.
+
 Pour un décaissement crypto, utilisez une méthode crypto active retournée par `GET /services` et envoyez l'adresse blockchain dans `destination`. Consultez [Paiements et décaissements crypto](../payments/crypto) pour les champs supplémentaires.
 
 <RequestExample>

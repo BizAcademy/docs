@@ -20,7 +20,7 @@
         "groups": [
           {
             "group": "Bien démarrer",
-            "pages": ["index", "quickstart", "authentication"]
+            "pages": ["index", "quickstart", "authentication", "application-scopes"]
           },
           {
             "group": "Intégration",

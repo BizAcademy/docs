@@ -1,0 +1,34 @@
+---
+title: "Scopes des applications"
+description: "Choisissez les autorisations API nécessaires à chaque application marchand."
+---
+
+Chaque application reçoit uniquement les scopes que vous lui attribuez. Le jeton d'application est limité à ces scopes ; les routes d'écriture et de lecture utilisent des autorisations distinctes lorsque nécessaire. Ajoutez les scopes nécessaires depuis **Développeurs → Applications**, puis régénérez le jeton si votre intégration le met en cache.
+
+| Scope | Accès |
+| --- | --- |
+| `services.read` | Consulter le catalogue des pays, devises et moyens de paiement avec `GET /services`. |
+| `fees.read` | Consulter les frais et demander une simulation avec `GET /fees`, `GET /fees/quote` ou `POST /fees/quote`. |
+| `payments.read` | Consulter un paiement avec `GET /payments/{id}`. |
+| `payments.write` | Créer un payin/collection avec `POST /payments`. |
+| `transactions.read` | Lister et consulter les transactions avec `GET /transactions` et `GET /transactions/{reference}`. |
+| `withdrawals.read` | Consulter un payout avec `GET /payouts/{reference}`. |
+| `withdrawals.write` | Créer un payout avec `POST /payouts`. |
+| `refunds.read` | Consulter un remboursement avec `GET /refunds/{reference}`. |
+| `refunds.write` | Demander un remboursement avec `POST /refunds`. |
+| `payment_links.read` | Lister et consulter les liens de paiement. |
+| `payment_links.write` | Créer un lien de paiement. |
+| `notifications.read` | Consulter les modèles de notification et l'état d'un message. |
+| `notifications.write` | Envoyer des notifications et créer, modifier ou supprimer des modèles. |
+| `virtual_cards.users.read` | Lister et consulter les titulaires de carte. |
+| `virtual_cards.users.write` | Créer un titulaire de carte. |
+| `virtual_cards.cards.read` | Lister les cartes et consulter un devis. |
+| `virtual_cards.cards.write` | Créer une carte. |
+| `virtual_cards.cards.manage` | Effectuer une opération de gestion sur une carte. |
+| `virtual_cards.cards.sensitive.read` | Consulter les données sensibles d'une carte ; accordez ce scope uniquement après validation explicite. |
+
+Les routes de gestion des webhooks marchand et de session WhatsApp utilisent l'authentification du dashboard. Les scopes `webhooks.read` et `webhooks.write` ne remplacent pas cette authentification.
+
+Le catalogue public `GET /notifications/plans` ne requiert pas de scope.
+
+Les scopes `wallets.read` restent disponibles pour les intégrations qui les utilisent. N'accordez pas un scope uniquement parce qu'il apparaît dans la liste ; suivez les permissions requises par les endpoints ci-dessus.

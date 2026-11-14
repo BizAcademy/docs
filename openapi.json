@@ -65,7 +65,7 @@
       "get": {
         "tags": ["Services"],
         "summary": "Lister les services disponibles",
-        "description": "Retourne les combinaisons pays, devise, opération, méthode et fournisseur actives pour l'environnement de l'application.",
+        "description": "Retourne les combinaisons pays, devise, opération, méthode et fournisseur actives pour l'environnement de l'application. Scope requis : `services.read`.",
         "operationId": "listServices",
         "responses": {
           "200": {

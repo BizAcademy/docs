@@ -6,6 +6,8 @@ openapi: "openapi.json GET /services"
 
 Le catalogue dépend de l'environnement de l'application et de la disponibilité des fournisseurs. Il regroupe les méthodes identiques même si plusieurs fournisseurs peuvent les traiter. Il ne renvoie pas d'objet fournisseur.
 
+Lorsqu'un code USSD est connu pour le pays et la méthode, chaque service exigeant un OTP inclut aussi le champ \`ussd_code\`. Les modèles qui dépendent du montant utilisent \`{amount}\` comme espace réservé : remplacez-le par le montant de la transaction avant d'afficher le code au payeur. Si \`otp_required\` est \`false\`, \`ussd_code\` est absent. Si l'OTP est requis mais qu'aucun code USSD fiable n'est configuré pour cette méthode, sa valeur est \`null\`.
+
 `otp_required` vaut `true` lorsqu'au moins un itinéraire actif de cette méthode peut exiger un code à usage unique. Utilisez cette indication pour afficher un champ correspondant. Le code est transmis uniquement à l'itinéraire qui le requiert.
 
 Chaque service inclut aussi `method_type` (`MOBILE_MONEY`, `CARD`, `CRYPTO` ou `OTHER`). Les services crypto peuvent inclure `accepted_coins`. Affichez uniquement les méthodes retournées comme disponibles : l'administration peut désactiver une capacité ou un itinéraire, et le catalogue reflète alors ce changement.
@@ -43,6 +45,38 @@ curl --request GET \
         "payment_method": "mtn_momo",
         "method_type": "MOBILE_MONEY",
         "otp_required": false,
+        "available": true
+      },
+      {
+        "country": {
+          "code": "CI",
+          "name": "CÔTE D'IVOIRE"
+        },
+        "currency": {
+          "code": "XOF",
+          "name": "West African CFA franc"
+        },
+        "operation": "COLLECTION",
+        "payment_method": "orange_money",
+        "method_type": "MOBILE_MONEY",
+        "otp_required": true,
+        "ussd_code": "*144*4*6*{amount}#",
+        "available": true
+      }
+       {
+        "country": {
+          "code": "BF",
+          "name": "BOUKINA FASO"
+        },
+        "currency": {
+          "code": "XOF",
+          "name": "West African CFA franc"
+        },
+        "operation": "COLLECTION",
+        "payment_method": "orange_money",
+        "method_type": "MOBILE_MONEY",
+        "otp_required": true,
+        "ussd_code": "*144*4*6*{amount}#",
         "available": true
       }
     ]

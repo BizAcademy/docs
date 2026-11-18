@@ -946,6 +946,11 @@
                       "type": "boolean",
                       "description": "True when at least one active provider route for this method may require a customer OTP."
                     },
+                    "ussd_code": {
+                      "type": ["string", "null"],
+                      "examples": ["*126#", "*144*4*6*{amount}#"],
+                      "description": "USSD template to obtain the OTP when known. Replace {amount} with the payment amount where present. Returned when otp_required is true."
+                    },
                     "available": { "type": "boolean" }
                   }
                 }

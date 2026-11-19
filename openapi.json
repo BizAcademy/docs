@@ -877,7 +877,12 @@
         "properties": {
           "code": { "type": "string" },
           "label": { "type": "string" },
-          "otp_required": { "type": "boolean" }
+          "otp_required": { "type": "boolean" },
+          "ussd_code": {
+            "type": ["string", "null"],
+            "examples": ["*126#", "*144*4*6*{amount}#"],
+            "description": "USSD template to obtain the OTP when known. Replace {amount} with the payment amount where present."
+          }
         }
       },
       "VirtualCardUserRequest": {

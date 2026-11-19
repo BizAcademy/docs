@@ -8,6 +8,8 @@ La page hébergée est disponible à l’adresse `https://pay.bizconnectpay.com/
 
 Chaque méthode renvoyée par `GET /payment-links/{code}/checkout` inclut `otp_required`. Pour un pays sélectionné, utilisez le même indicateur sur son entrée `operators`. Affichez un champ de code uniquement quand sa valeur est `true`, puis envoyez le code dans `otp_code` au POST de checkout. Certaines méthodes peuvent renvoyer une URL de redirection dans la réponse.
 
+Quand un `ussd_code` est présent sur la méthode, affichez-le pour guider le payeur dans l'obtention de son OTP. Les codes qui demandent un montant contiennent `{amount}` : remplacez ce marqueur par le montant de paiement avant de l'afficher. Un `ussd_code` peut être `null` lorsqu'un OTP est requis mais qu'aucun code USSD fiable n'est configuré pour le service.
+
 ## Paiement par carte
 
 Pour Visa/Mastercard, sélectionnez le pays `XI` (International), la devise `USD` et la méthode `card` si ces valeurs sont retournées par `GET /payment-links/{code}/checkout`. Dans le résultat `countries`, utilisez l'entrée `operators` du pays choisi. N'affichez pas la méthode si elle n'est pas présente : elle dépend de la configuration active des routes et des devises.

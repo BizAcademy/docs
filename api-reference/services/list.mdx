@@ -6,7 +6,20 @@ openapi: "openapi.json GET /services"
 
 Le catalogue dépend de l'environnement de l'application et de la disponibilité des fournisseurs. Il regroupe les méthodes identiques même si plusieurs fournisseurs peuvent les traiter. Il ne renvoie pas d'objet fournisseur.
 
-Lorsqu'un code USSD est connu pour le pays et la méthode, chaque service exigeant un OTP inclut aussi le champ \`ussd_code\`. Les modèles qui dépendent du montant utilisent \`{amount}\` comme espace réservé : remplacez-le par le montant de la transaction avant d'afficher le code au payeur. Si \`otp_required\` est \`false\`, \`ussd_code\` est absent. Si l'OTP est requis mais qu'aucun code USSD fiable n'est configuré pour cette méthode, sa valeur est \`null\`.
+Lorsqu'un code USSD est connu pour le pays et la méthode, chaque service exigeant un OTP inclut aussi le champ `ussd_code`. Les modèles qui dépendent du montant utilisent `{amount}` comme espace réservé : remplacez-le par le montant de la transaction avant d'afficher le code au payeur. Si `otp_required` est `false`, `ussd_code` est absent. Si l'OTP est requis mais qu'aucun code USSD fiable n'est configuré pour cette méthode, sa valeur est `null`.
+
+Exemples de codes USSD configurés :
+
+| Pays | Service | Code retourné dans `ussd_code` |
+| --- | --- | --- |
+| Cameroun (CM) | MTN | `*126#` |
+| Cameroun (CM) | Orange | `#150*50#` |
+| Côte d’Ivoire (CI) | MTN | `*133#` |
+| Côte d’Ivoire (CI) | Orange | `*144*4*6*{amount}#` |
+| Burkina Faso (BF) | Orange | `*144*4*6*{amount}#` |
+| Sénégal (SN) | Orange | `#144*391*{amount}#` |
+| Mali (ML) | Orange | `#144#37#` |
+| Guinée (GN) | Orange | `*144*4*2*1#` |
 
 `otp_required` vaut `true` lorsqu'au moins un itinéraire actif de cette méthode peut exiger un code à usage unique. Utilisez cette indication pour afficher un champ correspondant. Le code est transmis uniquement à l'itinéraire qui le requiert.
 
@@ -62,11 +75,11 @@ curl --request GET \
         "otp_required": true,
         "ussd_code": "*144*4*6*{amount}#",
         "available": true
-      }
-       {
+      },
+      {
         "country": {
           "code": "BF",
-          "name": "BOUKINA FASO"
+          "name": "BURKINA FASO"
         },
         "currency": {
           "code": "XOF",
